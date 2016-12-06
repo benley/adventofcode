@@ -28,12 +28,37 @@ nobannedsubstrs :: String -> Bool
 nobannedsubstrs xs = not $ any (`isInfixOf` xs) bannedstrs
   where bannedstrs = ["ab", "cd", "pq", "xy"]
 
+isNice1 :: String -> Bool
 isNice1 str = all (==True) [countVowels str >= 3,
                             hasdoubleletter str,
                             nobannedsubstrs str]
 
+{-
+  Now, a nice string is one with all of the following properties:
+
+  It contains a pair of any two letters that appears at least twice in the
+  string without overlapping, like xyxy (xy) or aabcdefgaa (aa), but not like
+  aaa (aa, but it overlaps).
+
+  It contains at least one letter which repeats with exactly one letter between
+  them, like xyx, abcdefeghi (efe), or even aaa.
+-}
+
+hasdoublepair :: Strool
+hasdoublepair (a:b:xs) = [a,b] `isInfixOf` xs || hasdoublepair (b:xs)
+hasdoublepair _ = False
+
+type Strool = String -> Bool
+
+aba :: Strool
+aba (a:b:c:xs) = a == c || aba (b:c:xs)
+aba _ = False
+
+isNice2 :: Strool
+isNice2 str = hasdoublepair str && aba str
+
 main :: IO ()
 main = do
     strs <- readFile "p5_input.txt"
-    let nicestrings = [x | x <- lines strs, isNice1 x]
-    print $ length nicestrings
+    print $ length [x | x <- lines strs, isNice1 x]
+    print $ length [x | x <- lines strs, isNice2 x]

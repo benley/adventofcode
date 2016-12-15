@@ -1,5 +1,6 @@
 module P2b where
 
+import Data.List (foldl')
 import Data.String.Utils (strip)
 
 type Pos = (Int, Int)
@@ -31,7 +32,7 @@ runpad pad pos cmdlines = map pad (runpad' pad pos cmdlines) where
     runpad' _ _ [] = []
     runpad' pad pos (move_seq:moves) =
         newpos : runpad' pad newpos moves
-        where newpos = foldl (move pad) pos move_seq
+        where newpos = foldl' (move pad) pos move_seq
 
     move :: Keypad -> Pos -> Char -> Pos
     move pinpad (x, y) dir =

@@ -3,28 +3,22 @@
 module P7 where
 
 import Control.Monad.Except (throwError)
-import Text.ParserCombinators.Parsec ((<|>))
-import qualified Text.ParserCombinators.Parsec as P
+import Text.Megaparsec
+import Text.Megaparsec.String
 
-data IPv7 = Addr String | Hypernet String
-
-instance Show IPv7 where show = showVal
-
-showVal :: IPv7 -> String
-showVal (Addr x) = "Addr " ++ show x
-showVal (Hypernet x) = "Net[" ++ show x ++ "]"
+data IPv7 = Addr String | Hypernet String deriving Show
 
 -- Finds the solution to part 1 almost entirely in Parsec
 checkTLS :: String -> Bool
 checkTLS x =
-    case readOrThrow parseIPv7 x of
+    case parse parseIPv7 "p7" x of
       Left err -> False
       Right ips -> containsAtLeastOneAbbaAddr ips && containsNoAbbaNets ips
     where
       containsAtLeastOneAbbaAddr [] = False
       containsAtLeastOneAbbaAddr (x:xs) =
           case x of
-            Addr a -> case readOrThrow parseTLSAddr a of
+            Addr a -> case parse parseTLSAddr "p7" a of
                         Left err -> containsAtLeastOneAbbaAddr xs
                         Right _ -> True
             Hypernet _ -> containsAtLeastOneAbbaAddr xs
@@ -33,7 +27,7 @@ checkTLS x =
       containsNoAbbaNets (x:xs) =
           case x of
             Addr _ -> containsNoAbbaNets xs
-            Hypernet n -> case readOrThrow parseTLSHypernet ("[" ++ n ++ "]") of
+            Hypernet n -> case parse parseTLSHypernet "p7" ("[" ++ n ++ "]") of
                             Left err -> False
                             Right _ -> containsNoAbbaNets xs
 
@@ -41,7 +35,7 @@ checkTLS x =
 -- awkward as it sounds, so this solves part 2 using normal FP
 checkSSL :: String -> Bool
 checkSSL x =
-    case readOrThrow parseIPv7 x of
+    case parse parseIPv7 "p7" x of
       Left  err -> False
       Right ips -> any (`rcontainsBAB` ips) (rfindABA ips)
     where
@@ -62,61 +56,46 @@ checkSSL x =
           bb == b && aa == a && bb' == b || containsBAB [a,b,a] (aa:bb':xs)
       containsBAB _ _ = False
 
-parseIPv7 :: P.Parser [IPv7]
-parseIPv7 = P.many1 (parseAddr <|> parseHypernet)
+parseIPv7 :: Parser [IPv7]
+parseIPv7 = some (parseAddr <|> parseHypernet)
 
-parseAbba :: P.Parser String
+parseAbba :: Parser String
 parseAbba = do
-    a <- P.letter
-    b <- P.letter
-    b' <- P.char b
-    a' <- P.char a
+    a <- letterChar
+    b <- letterChar
+    b' <- char b
+    a' <- char a
     if a == b
-      then P.unexpected "fart"
+      then unexpected EndOfInput
       else return [a, b, b, a]
 
-parseNotAbba :: P.Parser Char
-parseNotAbba = P.notFollowedBy parseAbba >> P.letter
+parseNotAbba :: Parser Char
+parseNotAbba = notFollowedBy parseAbba >> letterChar
 
-parseTLSAddr :: P.Parser IPv7
+parseTLSAddr :: Parser IPv7
 parseTLSAddr = do
-    a1s <- P.many (P.try parseNotAbba)
+    a1s <- many (try parseNotAbba)
     abba <- parseAbba
-    rest <- P.many P.letter
+    rest <- many letterChar
     return $ Addr (a1s ++ abba ++ rest)
 
-parseTLSHypernet :: P.Parser IPv7
+parseTLSHypernet :: Parser IPv7
 parseTLSHypernet = do
-    P.char '['
-    a1s <- P.many (P.try parseNotAbba)
-    end <- P.choice [P.try (P.count n P.letter) | n <- [3,2,1,0]]
-    P.char ']'
+    char '['
+    a1s <- many (try parseNotAbba)
+    end <- choice [try (count n letterChar) | n <- [3,2,1,0]]
+    char ']'
     return $ Hypernet (a1s ++ end)
 
-parseAddr :: P.Parser IPv7
-parseAddr = P.skipMany P.space >> Addr <$> P.many1 P.letter
+parseAddr :: Parser IPv7
+parseAddr = Addr <$> some letterChar
 
-parseHypernet :: P.Parser IPv7
+parseHypernet :: Parser IPv7
 parseHypernet = do
-    P.char '['
-    a <- P.many P.letter
-    P.char ']'
+    char '['
+    a <- some letterChar
+    char ']'
     return $ Hypernet a
-
-data IpError = Parser P.ParseError
-
-instance Show IpError where show = showError
-
-showError :: IpError -> String
-showError (Parser x) = "Parse error at " ++ show x
-
-type ThrowsError = Either IpError
-
-readOrThrow :: P.Parser a -> String -> ThrowsError a
-readOrThrow parser x =
-    case P.parse parser "herp derp" x of
-      Left  err -> throwError (Parser err)
-      Right val -> return val
 
 main = do
   indata <- lines <$> readFile "p7-input.txt"

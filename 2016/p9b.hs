@@ -1,24 +1,23 @@
 module P9b where
 
-import Text.ParserCombinators.Parsec ((<|>))
-import qualified Text.ParserCombinators.Parsec as P
+import Text.Megaparsec
+import Text.Megaparsec.String
 
-parseP9 = sum <$> P.many1 (parseMarker <|> parseNonMarker)
-parseNonMarker = length <$> P.many1 (P.alphaNum <|> P.char ')')
+parseP9 :: Parser Int
+parseP9 = sum <$> some (parseMarker <|> parseNonMarker)
+parseNonMarker = length <$> some (alphaNumChar <|> char ')')
 parseMarker = do
-    P.char '('
-    bodyLength <- read <$> P.many1 P.digit
-    P.char 'x'
-    repeatN <- read <$> P.many1 P.digit
-    P.char ')'
-    body <- P.count bodyLength P.anyChar
-    case parse body of
+    char '('
+    bodyLength <- read <$> some digitChar
+    char 'x'
+    repeatN <- read <$> some digitChar
+    char ')'
+    body <- count bodyLength anyChar
+    case parse parseP9 "P9" body of
       Right val -> return $ repeatN * val
-
-parse = P.parse parseP9 "P9"
 
 main = do
     indata <- readFile "p9-input.txt"
     putStr "Part 2: "
-    case parse indata of
+    case parse parseP9 "P9" indata of
       Right val -> print val

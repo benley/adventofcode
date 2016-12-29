@@ -47,9 +47,8 @@ decrypt (encname, offset, _) = map (shift offset) encname
     char2int ch = ord ch - ord 'a'
 
 main = do
-    indata <- lines <$> readFile "p4-input.txt"
-    let parsed_lines = map parse indata
-        getId (a, b, c) = b
+    parsed_lines <- map parse . lines <$> readFile "p4-input.txt"
+    let getId (a, b, c) = b
 
     putStr "Part 1: "
     print $ sum $ map getId $ filter isRealRoom parsed_lines

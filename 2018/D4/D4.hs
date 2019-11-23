@@ -1,6 +1,6 @@
 module D4_2018 where
 
-import qualified Data.List
+import qualified Data.List as List
 import qualified Data.Map as M
 import Data.Time
 import Data.Void (Void)
@@ -8,23 +8,21 @@ import Text.Megaparsec
 import Text.Megaparsec.Char
 import qualified Text.Megaparsec.Char.Lexer as L
 
-
 type GuardID = Int
-
 type Minute = Int
-
 type SleepRecord = M.Map GuardID [Minute]
-
-data ShiftRecord =
-    ShiftStart GuardID
-  | FallAsleep UTCTime
-  | WakeUp UTCTime
-  deriving Show
-
+data ShiftEvent = ShiftStart GuardID | FallAsleep | WakeUp deriving Show
+type ShiftRecord = (UTCTime, ShiftEvent)
 type Parser = Parsec Void String
 
-parseEntry :: Parser ShiftRecord
-parseEntry = try parseShiftStart <|> try parseAsleep <|> parseWake
+parseRecords :: Parser [ShiftRecord]
+parseRecords = parseRecord `sepEndBy` newline
+
+parseRecord :: Parser ShiftRecord
+parseRecord = do
+  ts <- parseTimestamp
+  event <- parseShiftStart <|> parseAsleep <|> parseWake
+  return (ts, event)
 
 parseTimestamp :: Parser UTCTime
 parseTimestamp = do
@@ -33,46 +31,20 @@ parseTimestamp = do
     Nothing -> fail "invalid timestamp"
     Just dt -> return dt
 
-parseShiftStart :: Parser ShiftRecord
-parseShiftStart = do
-  guardId <- parseTimestamp >> chunk "Guard #" >> L.decimal
-  _ <- chunk " begins shift"
-  -- fail "FART"
-  return (ShiftStart guardId)
+parseShiftStart :: Parser ShiftEvent
+parseShiftStart =
+  ShiftStart <$> (chunk "Guard #" >> L.decimal <* chunk " begins shift")
 
-parseAsleep :: Parser ShiftRecord
-parseAsleep = do
-  ts <- parseTimestamp
-  _ <- chunk "falls asleep"
-  return (FallAsleep ts)
+parseAsleep :: Parser ShiftEvent
+parseAsleep = chunk "falls asleep" >> return FallAsleep
 
-parseWake :: Parser ShiftRecord
-parseWake = do
-  ts <- parseTimestamp <* chunk "wakes up"
-  return (WakeUp ts)
-
--- data GuardShift = GuardShift {
---   guardId :: Int,
---   -- shiftStart :: LocalTime,
---   asleepMinutes :: [Int]
---   }
-
--- parseRecord :: Parser GuardShift
--- parseRecord = do
---   dt <- between (chunk "[") (chunk "]") parseDateTime
---   return $ GuardShift {
---     guardId = undefined,
---     asleepMinutes = undefined
---     }
-
--- parseDateTime :: Parser Data.Time.UTCTime
--- parseDateTime = undefined
+parseWake :: Parser ShiftEvent
+parseWake = chunk "wakes up" >> return WakeUp
 
 main :: IO ()
 main = do
-  input <- Data.List.sort . lines <$> getContents
-  -- case runParser parseRecord "herp" input of
-  --   Left err -> print err
-  --   Right records ->
-  --     print records
-  putStrLn $ unlines input
+  input <- getContents
+  case runParser parseRecords "herp" input of
+    Left err -> print err
+    Right records ->
+      print $ List.sortOn fst records

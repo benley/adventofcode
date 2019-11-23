@@ -8,6 +8,7 @@ let
 
   ghc = haskellPackages.ghcWithPackages (ps: with ps; [
     megaparsec
+    time
   ]);
 in
 

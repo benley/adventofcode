@@ -15,7 +15,11 @@ build-type:          Simple
 
 library
         build-depends: base
+                     , split >= 0.2.3.3
                      , text >= 1.2.3.1
+                     , diagrams
+                     , diagrams-lib
+                     , diagrams-svg
         default-language: Haskell2010
 
 -- executable aoc2019

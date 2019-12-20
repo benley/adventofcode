@@ -4,12 +4,12 @@ let
 
   inherit (nixpkgs) pkgs;
 
-  f = { mkDerivation, base, stdenv, text, diagrams }:
+  f = { mkDerivation, base, containers, split, stdenv, text }:
       mkDerivation {
         pname = "aoc2019";
         version = "0.1.0.0";
         src = ./.;
-        libraryHaskellDepends = [ base text diagrams ];
+        libraryHaskellDepends = [ base containers split text ];
         doHaddock = false;
         license = "unknown";
         hydraPlatforms = stdenv.lib.platforms.none;

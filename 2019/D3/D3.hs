@@ -1,41 +1,45 @@
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE NoMonomorphismRestriction #-}
-{-# LANGUAGE FlexibleContexts          #-}
-{-# LANGUAGE TypeFamilies              #-}
 
 module D3_2019 where
 
+import qualified Data.Set as S
+import Data.List (elemIndex)
 import Data.List.Split
-import Diagrams.Prelude
-import Diagrams.Backend.SVG
+import Data.Maybe (fromJust)
 
 main :: IO ()
 main = do
-  [wire1, wire2] <- fmap (splitOn ",") . lines <$> readFile "D3/input.txt"
-  runWithInput wire1 wire2
+  input <- readFile "D3/input.txt"
+  runWithText input
+
+runWithText :: String -> IO ()
+runWithText input = do
+  let [cmds1, cmds2] = map (splitOn ",") (lines input)
+  runWithInput cmds1 cmds2
 
 runWithInput :: [String] -> [String] -> IO ()
-runWithInput wire1 wire2 = do
-  let path1 = wireToPath wire1
-      path2 = wireToPath wire2
-      matchPoints = intersectPointsP path1 path2
-  renderSVG "d3.svg" (dims (V2 1024 768)) $ mconcat [
-    mconcat (map mkCircle matchPoints),
-    strokePath path1 # lc blue,
-    strokePath path2 # lc red,
-    square 100 # lc green
-    ]
-  print $ minimum $ map manhattanDistance matchPoints
-  where
-    wireToPath = fromVertices . map p2 . cmdsToCoords . parseCommands
-    mkCircle p = circle 1 # moveTo p
+runWithInput cmds1 cmds2 = do
+  let wire1 = fillCoords $ cmdsToCoords (parseCommands cmds1)
+      wire2 = fillCoords $ cmdsToCoords (parseCommands cmds2)
 
-manhattanDistance :: Num a => P2 a -> a
-manhattanDistance (P (V2 x y)) = abs x + abs y
+      intersections = S.delete (0,0) (S.intersection (S.fromList wire1) (S.fromList wire2))
+      stepsToEachIntersection = map (\c -> combinedStepsToPoint c wire1 wire2) (S.toList intersections)
 
-data Command = WUp Float | WDown Float | WLeft Float | WRight Float deriving Show
-type Wire = [Coord]
-type Coord = (Float, Float)
+  putStrLn $ "Part 1: " ++ show (minimum $ map manhattanDistance (S.toList intersections))
+  putStrLn $ "Part 2: " ++ show (minimum stepsToEachIntersection)
+
+combinedStepsToPoint :: Coord -> [Coord] -> [Coord] -> Int
+combinedStepsToPoint pt wire1 wire2 = stepsToPoint pt wire1 + stepsToPoint pt wire2
+
+stepsToPoint :: Coord -> [Coord] -> Int
+stepsToPoint pt = fromJust . elemIndex pt
+
+manhattanDistance :: Coord -> Int
+manhattanDistance (x, y) = abs x + abs y
+
+data Command = WUp Int | WDown Int | WLeft Int | WRight Int deriving Show
+
+type Coord = (Int, Int)
 
 parseCommands :: [String] -> [Command]
 parseCommands (x:xs) = cmd : parseCommands xs
@@ -47,8 +51,9 @@ parseCommands (x:xs) = cmd : parseCommands xs
                 c -> error ("bad command: " ++ show c)
 parseCommands [] = []
 
+-- using reverse here is dumb but oh well
 cmdsToCoords :: [Command] -> [Coord]
-cmdsToCoords = foldl applyCmd []
+cmdsToCoords = reverse . foldl applyCmd []
 
 applyCmd :: [Coord] -> Command -> [Coord]
 applyCmd path@((x, y) : _) cmd =
@@ -58,3 +63,17 @@ applyCmd path@((x, y) : _) cmd =
     WLeft  n -> (x-n, y) : path
     WRight n -> (x+n, y) : path
 applyCmd [] cmd = applyCmd [(0, 0)] cmd
+
+fillCoords :: [Coord] -> [Coord]
+fillCoords = foldr applyFill []
+
+applyFill :: Coord -> [Coord] -> [Coord]
+applyFill (x1, y1) ((x0, y0) : xs) =
+  [(x, y) | x <- fillBetween x1 x0, y <- fillBetween y1 y0] ++ xs
+applyFill c [] = [c]
+
+fillBetween :: (Num a, Ord a, Enum a) => a -> a -> [a]
+fillBetween x0 x1 = case compare x0 x1 of
+  LT -> [x0, x0+1 .. x1]
+  GT -> [x0, x0-1 .. x1]
+  EQ -> [x0]

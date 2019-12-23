@@ -16,11 +16,16 @@ data Instruction = Add Arg Arg Address
 
 -- later: generalize instruction decoding with this
 --
--- nthDigit :: Int -> Int -> Int
--- nthDigit nth num = num `div` (10 ^ (nth-1)) `mod` 10
---
+nthDigit :: Int -> Int -> Int
+nthDigit nth num = num `div` (10 ^ (nth-1)) `mod` 10
+
 -- decodeN :: Int -> [Int] -> [Arg]
 -- decodeN n (i:xs) =
+
+modeArg :: Int -> Int -> Arg
+modeArg 0 v = Ptr v
+modeArg 1 v = Value v
+modeArg _ _ = error "invalid mode"
 
 decodeInstruction :: [Int] -> Maybe Instruction
 decodeInstruction [] = Nothing
@@ -28,19 +33,13 @@ decodeInstruction (i:args) = do
   let opcode = i `mod` 100 -- rightmost two digits
   case opcode of
     1 -> do
-      let mode1 = i `div` 100 `mod` 10
-          mode2 = i `div` 1000 `mod` 10
+      let (mode1, mode2) = (nthDigit 3 i, nthDigit 4 i)
           [raw1, raw2, dest] = take 3 args
-          arg1 = if mode1 == 0 then Ptr raw1 else Value raw1
-          arg2 = if mode2 == 0 then Ptr raw2 else Value raw2
-      Just $ Add arg1 arg2 dest
+      Just $ Add (modeArg mode1 raw1) (modeArg mode2 raw2) dest
     2 -> do
-      let mode1 = i `div` 100 `mod` 10
-          mode2 = i `div` 1000 `mod` 10
+      let (mode1, mode2) = (nthDigit 3 i, nthDigit 4 i)
           [raw1, raw2, dest] = take 3 args
-          arg1 = if mode1 == 0 then Ptr raw1 else Value raw1
-          arg2 = if mode2 == 0 then Ptr raw2 else Value raw2
-      Just $ Multiply arg1 arg2 dest
+      Just $ Multiply (modeArg mode1 raw1) (modeArg mode2 raw2) dest
     3 -> Just $ Store (head args)
     4 -> Just $ Output (head args)
     99 -> Just Halt

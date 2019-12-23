@@ -10,7 +10,7 @@ data Arg = Value Int | Ptr Address deriving Show
 data Instruction = Add Arg Arg Address
                  | Multiply Arg Arg Address
                  | Store Address
-                 | Output Address
+                 | Output Arg
                  | JumpIfTrue Arg Arg
                  | JumpIfFalse Arg Arg
                  | LessThan Arg Arg Address
@@ -39,7 +39,7 @@ decodeInstruction ia@(i:args) = do
     1 -> Just $ Add         (argN 1 ia) (argN 2 ia) (ia !! 3)
     2 -> Just $ Multiply    (argN 1 ia) (argN 2 ia) (ia !! 3)
     3 -> Just $ Store       (head args)
-    4 -> Just $ Output      (head args)
+    4 -> Just $ Output      (argN 1 ia)
     5 -> Just $ JumpIfTrue  (argN 1 ia) (argN 2 ia)
     6 -> Just $ JumpIfFalse (argN 1 ia) (argN 2 ia)
     7 -> Just $ LessThan    (argN 1 ia) (argN 2 ia) (ia !! 3)
@@ -52,8 +52,10 @@ intcode _ [] = return (Left "Unexpected end of program")
 intcode pos xs = do
   let getValue (Value n) = n
       getValue (Ptr p) = xs !! p
+      instruction = decodeInstruction (drop pos xs)
 
-  case decodeInstruction (drop pos xs) of
+  print instruction
+  case instruction of
 
     Nothing -> return $ Left ("Could not decode opcode: " ++ show (xs !! pos))
 
@@ -68,8 +70,8 @@ intcode pos xs = do
       input <- read <$> getLine
       intcode (pos+2) (update dest input xs)
 
-    Just (Output addr) -> do
-      print (xs !! addr)
+    Just (Output arg) -> do
+      print (getValue arg)
       intcode (pos+2) xs
 
     Just (JumpIfTrue arg target) ->

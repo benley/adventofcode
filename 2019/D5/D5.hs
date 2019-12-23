@@ -4,11 +4,9 @@ module D5_2019 where
 
 import Data.Text as T (strip, pack, unpack, splitOn)
 
--- | This will probably need to return useful errors at some point, but
--- | for now it can just return [-1] if it encounters unknown opcodes
-intcode :: Int -> [Int] -> IO [Int]
+intcode :: Int -> [Int] -> IO (Either String [Int])
 
-intcode _ [] = return []
+intcode _ [] = return (Right [])
 
 intcode pos xs = let opcode = xs !! pos in
   case opcode of
@@ -34,12 +32,10 @@ intcode pos xs = let opcode = xs !! pos in
       intcode (pos+2) xs
 
     -- opcode 99: halt
-    99 -> return xs
+    99 -> return (Right xs)
 
     -- unknown opcode?
-    x -> do
-      putStrLn $ "Unknown opcode: " ++ show x
-      return [-1]
+    x -> return (Left $ "Unknown opcode: " ++ show x)
 
 
 -- | Update a list (xs) by storing value newX at index n

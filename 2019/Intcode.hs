@@ -3,7 +3,8 @@
 module Intcode (
   intcode,
   newVm,
-  VmState(..)
+  VmState(..),
+  Program
 ) where
 
 type Address = Int
@@ -20,6 +21,8 @@ data Instruction = Add Arg Arg Address
                  | Equal Arg Arg Address
                  | Halt
                  deriving Show
+
+type Program = [Int]
 
 -- return the nth digit (from the right) of an integer, starting at 1
 nthDigit :: Int -> Int -> Int
@@ -49,7 +52,7 @@ decodeInstruction ia@(i:_) =
 data VmState = VmState { inputs :: [Int]
                        , outputs :: [Int]
                        , position :: Int
-                       , program :: [Int]
+                       , program :: Program
                        } deriving Show
 
 newVm :: VmState

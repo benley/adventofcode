@@ -8,8 +8,7 @@ import Intcode
 
 main :: IO ()
 main = do
-  input' <- splitOn "," . strip . pack <$> readFile "D5/input.txt"
-  let input = map (read . unpack) input'
+  input <- map (read . unpack) . splitOn "," . strip . pack <$> readFile "D5/input.txt"
   result <- intcode 0 input
   case result of
     Left err -> putStrLn err

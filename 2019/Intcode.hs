@@ -1,4 +1,10 @@
-module Intcode (intcode) where
+{-# LANGUAGE NamedFieldPuns #-}
+
+module Intcode (
+  intcode,
+  newVm,
+  VmState(..)
+) where
 
 type Address = Int
 
@@ -40,50 +46,69 @@ decodeInstruction ia@(i:_) =
                1 -> Value (ia !! n)
                x -> error ("Invalid instruction mode: " ++ show x)
 
-intcode :: Int -> [Int] -> IO (Either String [Int])
-intcode _ [] = return (Left "Unexpected end of program")
-intcode pos xs = do
+data VmState = VmState { inputs :: [Int]
+                       , outputs :: [Int]
+                       , position :: Int
+                       , program :: [Int]
+                       } deriving Show
+
+newVm :: VmState
+newVm = VmState { inputs = []
+                , outputs = []
+                , position = 0
+                , program = [] }
+
+intcode :: VmState -> Either String VmState
+intcode VmState{program = []} = Left "Unexpected end of program"
+
+intcode vm@VmState{inputs, outputs, position = pos, program = xs} = do
   let getValue (Value n) = n
       getValue (Ptr p) = xs !! p
 
   case decodeInstruction (drop pos xs) of
 
-    Nothing -> return $ Left ("Could not decode opcode: " ++ show (xs !! pos))
+    Nothing -> Left ("Could not decode opcode: " ++ show (xs !! pos))
 
     Just (Add arg1 arg2 dest) ->
-      intcode (pos+4) (update dest (getValue arg1 + getValue arg2) xs)
+      intcode vm { position = pos+4
+                 , program = update dest (getValue arg1 + getValue arg2) xs }
 
     Just (Multiply arg1 arg2 dest) ->
-      intcode (pos+4) (update dest (getValue arg1 * getValue arg2) xs)
+      intcode vm { position = pos+4
+                 , program = update dest (getValue arg1 * getValue arg2) xs }
 
-    Just (Store dest) -> do
-      putStr "Input: "
-      input <- read <$> getLine
-      intcode (pos+2) (update dest input xs)
+    Just (Store dest) ->
+      if null inputs then Left "Ran out of inputs!" else
+        let (input : remainingInput) = inputs in
+          intcode vm { position = pos+2
+                     , program = update dest input xs
+                     , inputs = remainingInput }
 
-    Just (Output arg) -> do
-      putStrLn ("Output: " ++ show (getValue arg))
-      intcode (pos+2) xs
+    Just (Output arg) ->
+      intcode vm { position = pos+2
+                 , outputs = getValue arg : outputs }
 
     Just (JumpIfTrue arg target) ->
       if getValue arg == 0
-      then intcode (pos+3) xs
-      else intcode (getValue target) xs
+      then intcode vm { position = pos+3 }
+      else intcode vm { position = getValue target }
 
     Just (JumpIfFalse arg target) ->
       if getValue arg == 0
-      then intcode (getValue target) xs
-      else intcode (pos+3) xs
+      then intcode vm { position = getValue target }
+      else intcode vm { position = pos+3 }
 
     Just (LessThan arg1 arg2 dest) -> do
       let v = if getValue arg1 < getValue arg2 then 1 else 0
-      intcode (pos+4) (update dest v xs)
+      intcode vm { position = pos+4
+                 , program = update dest v xs }
 
     Just (Equal arg1 arg2 dest) -> do
       let v = if getValue arg1 == getValue arg2 then 1 else 0
-      intcode (pos+4) (update dest v xs)
+      intcode vm { position = pos+4
+                 , program = update dest v xs }
 
-    Just Halt -> return (Right xs)
+    Just Halt -> Right vm
 
 -- | Update xs by storing newX at index n
 -- | This is not efficient, but it's good enough for now

@@ -3,9 +3,12 @@
 module Intcode (
   intcode,
   newVm,
+  runIntcode,
   VmState(..),
   Program
 ) where
+
+import Control.Monad.Trans.State
 
 type Address = Int
 
@@ -60,6 +63,15 @@ newVm = VmState { inputs = []
                 , outputs = []
                 , position = 0
                 , program = [] }
+
+runIntcode :: [Int] -> State VmState [Int]
+runIntcode inputs = do
+  vm <- get
+  case intcode vm{inputs=inputs} of
+    Left err -> fail ("HERP DERP " ++ err)
+    Right vm' -> do
+      put vm'
+      return (outputs vm')
 
 intcode :: VmState -> Either String VmState
 intcode VmState{program = []} = Left "Unexpected end of program"

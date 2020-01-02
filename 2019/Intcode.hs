@@ -3,12 +3,15 @@
 module Intcode (
   intcode,
   newVm,
-  runIntcode,
+  -- runIntcode,
   VmState(..),
   Program
 ) where
 
-import Control.Monad.Trans.State
+import Control.Concurrent.STM.TBQueue
+import GHC.Conc.Sync (STM)
+-- import Control.Monad.Trans.State
+-- import Data.DList as DL
 
 type Address = Int
 
@@ -52,29 +55,36 @@ decodeInstruction ia@(i:_) =
                1 -> Value (ia !! n)
                x -> error ("Invalid instruction mode: " ++ show x)
 
-data VmState = VmState { inputs :: [Int]
-                       , outputs :: [Int]
+data VmState = VmState { inputs :: TBQueue Int
+                       , outputs :: TBQueue Int
                        , position :: Int
                        , program :: Program
-                       } deriving Show
+                       } -- deriving Show
 
-newVm :: VmState
-newVm = VmState { inputs = []
-                , outputs = []
-                , position = 0
-                , program = [] }
+newVm :: Program -> STM VmState
+newVm p = do
+  outputs <- newTBQueue 100
+  inputs <- newTBQueue 100
+  return VmState { inputs = inputs
+                 , outputs = outputs
+                 , position = 0
+                 , program = p }
 
-runIntcode :: [Int] -> State VmState [Int]
-runIntcode inputs = do
-  vm <- get
-  case intcode vm{inputs=inputs} of
-    Left err -> fail ("HERP DERP " ++ err)
-    Right vm' -> do
-      put vm'
-      return (outputs vm')
+-- runIntcode :: [Int] -> State VmState [Int]
+-- runIntcode inputs = do
+--   vm <- get
+--   case intcode vm{inputs=inputs} of
+--     Left err -> fail ("HERP DERP " ++ err)
+--     Right vm' -> do
+--       outList <- flushTQueue $ outputs vm'
+--       put vm'
+--       return outList
 
-intcode :: VmState -> Either String VmState
-intcode VmState{program = []} = Left "Unexpected end of program"
+-- intcode :: VmState -> Either String VmState
+-- intcode :: VmState -> STM VmState
+-- intcode :: VmState -> STM VmState
+intcode :: VmState -> STM ()
+intcode VmState{program = []} = fail "Unexpected end of program"
 
 intcode vm@VmState{inputs, outputs, position = pos, program = xs} = do
   let getValue (Value n) = n
@@ -82,7 +92,7 @@ intcode vm@VmState{inputs, outputs, position = pos, program = xs} = do
 
   case decodeInstruction (drop pos xs) of
 
-    Nothing -> Left ("Could not decode opcode: " ++ show (xs !! pos))
+    Nothing -> fail ("Could not decode opcode: " ++ show (xs !! pos))
 
     Just (Add arg1 arg2 dest) ->
       intcode vm { position = pos+4
@@ -92,16 +102,14 @@ intcode vm@VmState{inputs, outputs, position = pos, program = xs} = do
       intcode vm { position = pos+4
                  , program = update dest (getValue arg1 * getValue arg2) xs }
 
-    Just (Store dest) ->
-      if null inputs then Left "Ran out of inputs!" else
-        let (input : remainingInput) = inputs in
-          intcode vm { position = pos+2
-                     , program = update dest input xs
-                     , inputs = remainingInput }
-
-    Just (Output arg) ->
+    Just (Store dest) -> do
+      nextInput <- readTBQueue inputs
       intcode vm { position = pos+2
-                 , outputs = getValue arg : outputs }
+                 , program = update dest nextInput xs }
+
+    Just (Output arg) -> do
+      writeTBQueue outputs (getValue arg)
+      intcode vm { position = pos+2 }
 
     Just (JumpIfTrue arg target) ->
       if getValue arg == 0
@@ -123,7 +131,7 @@ intcode vm@VmState{inputs, outputs, position = pos, program = xs} = do
       intcode vm { position = pos+4
                  , program = update dest v xs }
 
-    Just Halt -> Right vm
+    Just Halt -> return ()
 
 -- | Update xs by storing newX at index n
 -- | This is not efficient, but it's good enough for now

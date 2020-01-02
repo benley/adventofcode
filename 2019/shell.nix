@@ -4,15 +4,15 @@ let
 
   inherit (nixpkgs) pkgs;
 
-  f = { mkDerivation, base, containers, fgl, split, stdenv, text
-      , transformers
+  f = { mkDerivation, base, async, containers, dlist, fgl, split, stdenv
+      , string-qq, text, transformers
       }:
       mkDerivation {
         pname = "aoc2019";
         version = "0.1.0.0";
         src = ./.;
         libraryHaskellDepends = [
-          base containers fgl split text transformers
+          base async containers dlist fgl split string-qq text transformers
         ];
         doHaddock = false;
         license = "unknown";

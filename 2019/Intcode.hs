@@ -1,17 +1,21 @@
 {-# LANGUAGE NamedFieldPuns #-}
+{-# LANGUAGE OverloadedStrings #-}
 
 module Intcode (
   intcode,
   newVm,
+  toProgram,
+  progFromFile,
   -- runIntcode,
   VmState(..),
   Program
 ) where
 
-import Control.Concurrent.STM.TBQueue
-import GHC.Conc.Sync (STM)
--- import Control.Monad.Trans.State
--- import Data.DList as DL
+import Control.Concurrent.STM
+import Data.Array
+import Data.Text (strip, unpack, splitOn)
+import Data.Text.IO (readFile)
+import Prelude hiding (readFile)
 
 type Address = Int
 
@@ -28,7 +32,14 @@ data Instruction = Add Arg Arg Address
                  | Halt
                  deriving Show
 
-type Program = [Int]
+type Program = Array Int Int
+
+toProgram :: [Int] -> Program
+toProgram p = listArray (0, length p - 1) p
+
+-- | Read a file, return its contents as a Program
+progFromFile :: FilePath -> IO Program
+progFromFile f = toProgram . map (read . unpack) . splitOn "," . strip <$> readFile f
 
 -- return the nth digit (from the right) of an integer, starting at 1
 nthDigit :: Int -> Int -> Int
@@ -80,32 +91,29 @@ newVm p = do
 --       put vm'
 --       return outList
 
--- intcode :: VmState -> Either String VmState
--- intcode :: VmState -> STM VmState
--- intcode :: VmState -> STM VmState
 intcode :: VmState -> STM ()
-intcode VmState{program = []} = fail "Unexpected end of program"
+intcode VmState{program} | null program = fail "Unexpected end of program"
 
 intcode vm@VmState{inputs, outputs, position = pos, program = xs} = do
   let getValue (Value n) = n
-      getValue (Ptr p) = xs !! p
+      getValue (Ptr p) = xs ! p
 
-  case decodeInstruction (drop pos xs) of
+  case decodeInstruction (drop pos (elems xs)) of
 
-    Nothing -> fail ("Could not decode opcode: " ++ show (xs !! pos))
+    Nothing -> fail ("Could not decode opcode: " ++ show (xs ! pos))
 
     Just (Add arg1 arg2 dest) ->
       intcode vm { position = pos+4
-                 , program = update dest (getValue arg1 + getValue arg2) xs }
+                 , program = xs // [(dest, getValue arg1 + getValue arg2)] }
 
     Just (Multiply arg1 arg2 dest) ->
       intcode vm { position = pos+4
-                 , program = update dest (getValue arg1 * getValue arg2) xs }
+                 , program = xs // [(dest, getValue arg1 * getValue arg2)] }
 
     Just (Store dest) -> do
       nextInput <- readTBQueue inputs
       intcode vm { position = pos+2
-                 , program = update dest nextInput xs }
+                 , program = xs // [(dest, nextInput)] }
 
     Just (Output arg) -> do
       writeTBQueue outputs (getValue arg)
@@ -124,16 +132,11 @@ intcode vm@VmState{inputs, outputs, position = pos, program = xs} = do
     Just (LessThan arg1 arg2 dest) -> do
       let v = if getValue arg1 < getValue arg2 then 1 else 0
       intcode vm { position = pos+4
-                 , program = update dest v xs }
+                 , program = xs // [(dest, v)] }
 
     Just (Equal arg1 arg2 dest) -> do
       let v = if getValue arg1 == getValue arg2 then 1 else 0
       intcode vm { position = pos+4
-                 , program = update dest v xs }
+                 , program = xs // [(dest, v)] }
 
     Just Halt -> return ()
-
--- | Update xs by storing newX at index n
--- | This is not efficient, but it's good enough for now
-update :: Int -> a -> [a] -> [a]
-update n newX xs = take n xs ++ [newX] ++ drop (n + 1) xs

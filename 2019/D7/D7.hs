@@ -3,13 +3,8 @@
 module D7_2019 where
 
 import Control.Concurrent.Async as Async
-import Control.Concurrent.STM.TBQueue
-import Control.Monad
-import GHC.Conc.Sync (STM, atomically)
+import Control.Concurrent.STM
 import Data.List
-import Data.Text (strip, unpack, splitOn)
-import Data.Text.IO (readFile)
-import Prelude hiding (lines, readFile)
 
 import Intcode
 
@@ -24,13 +19,6 @@ runStep p phase signal = do
   intcode vm
   readTBQueue (outputs vm)
 
-  -- output <- readTBQueue (outputs vm')
-
-  -- case intcode (newVm { program = p, inputs = [phase,signal] }) of
-  --   Left err -> error err
-  --   Right VmState {outputs} | length (DL.toList outputs) == 1 -> DL.head outputs
-  --   _ -> error "wtf"
-
 runAll :: Program -> [Phase] -> Signal -> STM Signal
 runAll _ [] signal = return signal
 runAll p (phase:ps) signal = do
@@ -39,7 +27,7 @@ runAll p (phase:ps) signal = do
 
 main :: IO ()
 main = do
-  initTape <- map (read . unpack) . splitOn "," . strip <$> readFile "D7/input.txt"
+  initTape <- progFromFile "D7/input.txt"
 
   putStr "Part 1: "
   result1 <- maximum <$> atomically (mapM (\ps -> runAll initTape ps 0) (permutations [0..4]))

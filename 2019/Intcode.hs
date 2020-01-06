@@ -1,17 +1,12 @@
-{-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE OverloadedStrings #-}
 
 module Intcode (
   intcode,
-  newVm,
   toProgram,
   progFromFile,
-  -- runIntcode,
-  VmState(..),
   Program
 ) where
 
-import Control.Concurrent.STM
 import Data.Array
 import Data.Text (strip, unpack, splitOn)
 import Data.Text.IO (readFile)
@@ -34,6 +29,7 @@ data Instruction = Add Arg Arg Address
 
 type Program = Array Int Int
 
+-- | Convert an Int array containing an intcode program into a Program
 toProgram :: [Int] -> Program
 toProgram p = listArray (0, length p - 1) p
 
@@ -41,7 +37,7 @@ toProgram p = listArray (0, length p - 1) p
 progFromFile :: FilePath -> IO Program
 progFromFile f = toProgram . map (read . unpack) . splitOn "," . strip <$> readFile f
 
--- return the nth digit (from the right) of an integer, starting at 1
+-- | return the nth digit (from the right) of an integer, starting at 1
 nthDigit :: Int -> Int -> Int
 nthDigit nth num = num `div` (10 ^ (nth-1)) `mod` 10
 
@@ -66,35 +62,10 @@ decodeInstruction ia@(i:_) =
                1 -> Value (ia !! n)
                x -> error ("Invalid instruction mode: " ++ show x)
 
-data VmState = VmState { inputs :: TBQueue Int
-                       , outputs :: TBQueue Int
-                       , position :: Int
-                       , program :: Program
-                       } -- deriving Show
-
-newVm :: Program -> STM VmState
-newVm p = do
-  outputs <- newTBQueue 100
-  inputs <- newTBQueue 100
-  return VmState { inputs = inputs
-                 , outputs = outputs
-                 , position = 0
-                 , program = p }
-
--- runIntcode :: [Int] -> State VmState [Int]
--- runIntcode inputs = do
---   vm <- get
---   case intcode vm{inputs=inputs} of
---     Left err -> fail ("HERP DERP " ++ err)
---     Right vm' -> do
---       outList <- flushTQueue $ outputs vm'
---       put vm'
---       return outList
-
-intcode :: VmState -> STM ()
-intcode VmState{program} | null program = fail "Unexpected end of program"
-
-intcode vm@VmState{inputs, outputs, position = pos, program = xs} = do
+-- | Run an intcode program
+intcode :: [Int] -> Int -> Program -> [Int]
+intcode _ _ p | null p = fail "Unexpected end of program"
+intcode inputs pos xs = do
   let getValue (Value n) = n
       getValue (Ptr p) = xs ! p
 
@@ -103,40 +74,33 @@ intcode vm@VmState{inputs, outputs, position = pos, program = xs} = do
     Nothing -> fail ("Could not decode opcode: " ++ show (xs ! pos))
 
     Just (Add arg1 arg2 dest) ->
-      intcode vm { position = pos+4
-                 , program = xs // [(dest, getValue arg1 + getValue arg2)] }
+      intcode inputs (pos+4) (xs // [(dest, getValue arg1 + getValue arg2)])
 
     Just (Multiply arg1 arg2 dest) ->
-      intcode vm { position = pos+4
-                 , program = xs // [(dest, getValue arg1 * getValue arg2)] }
+      intcode inputs (pos+4) (xs // [(dest, getValue arg1 * getValue arg2)])
 
-    Just (Store dest) -> do
-      nextInput <- readTBQueue inputs
-      intcode vm { position = pos+2
-                 , program = xs // [(dest, nextInput)] }
+    Just (Store dest) ->
+      intcode (drop 1 inputs) (pos+2) (xs // [(dest, head inputs)])
 
-    Just (Output arg) -> do
-      writeTBQueue outputs (getValue arg)
-      intcode vm { position = pos+2 }
+    Just (Output arg) ->
+      getValue arg : intcode inputs (pos+2) xs
 
     Just (JumpIfTrue arg target) ->
       if getValue arg == 0
-      then intcode vm { position = pos+3 }
-      else intcode vm { position = getValue target }
+      then intcode inputs (pos+3) xs
+      else intcode inputs (getValue target) xs
 
     Just (JumpIfFalse arg target) ->
       if getValue arg == 0
-      then intcode vm { position = getValue target }
-      else intcode vm { position = pos+3 }
+      then intcode inputs (getValue target) xs
+      else intcode inputs (pos+3) xs
 
     Just (LessThan arg1 arg2 dest) -> do
       let v = if getValue arg1 < getValue arg2 then 1 else 0
-      intcode vm { position = pos+4
-                 , program = xs // [(dest, v)] }
+      intcode inputs (pos+4) (xs // [(dest, v)])
 
     Just (Equal arg1 arg2 dest) -> do
       let v = if getValue arg1 == getValue arg2 then 1 else 0
-      intcode vm { position = pos+4
-                 , program = xs // [(dest, v)] }
+      intcode inputs (pos+4) (xs // [(dest, v)])
 
-    Just Halt -> return ()
+    Just Halt -> []

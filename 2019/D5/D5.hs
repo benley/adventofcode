@@ -2,20 +2,14 @@
 
 module D5_2019 where
 
-import Prelude hiding (readFile)
-import Data.Text (strip, unpack, splitOn)
-import Data.Text.IO (readFile)
-
 import Intcode
 
 main :: IO ()
 main = do
-  input <- map (read . unpack) . splitOn "," . strip <$> readFile "D5/input.txt"
+  prog <- progFromFile "D5/input.txt"
 
-  case intcode (newVm { program = input, inputs = [1] }) of
-    Left err -> putStrLn err
-    Right st -> putStrLn ("Part 1: " ++ show (outputs st))
+  putStr "Part 1: "
+  print (intcode [1] 0 prog)
 
-  case intcode (newVm { program = input, inputs = [5] }) of
-    Left err -> putStrLn err
-    Right st -> putStrLn ("Part 2: " ++ show (outputs st))
+  putStr "Part 2: "
+  print (intcode [5] 0 prog)

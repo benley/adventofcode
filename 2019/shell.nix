@@ -4,17 +4,14 @@ let
 
   inherit (nixpkgs) pkgs;
 
-  f = { mkDerivation, array, async, base, containers, dlist, fgl
-      , split, stdenv, stm, string-qq, text, transformers
+  f = { mkDerivation, array, base, containers, fgl, split, stdenv
+      , text
       }:
       mkDerivation {
         pname = "aoc2019";
         version = "0.1.0.0";
         src = ./.;
-        libraryHaskellDepends = [
-          array async base containers dlist fgl split stm string-qq text
-          transformers
-        ];
+        libraryHaskellDepends = [ array base containers fgl split text ];
         doHaddock = false;
         license = "unknown";
         hydraPlatforms = stdenv.lib.platforms.none;

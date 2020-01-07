@@ -11,7 +11,7 @@ module Intcode (
   Program
 ) where
 
-import qualified Data.Map as M
+import qualified Data.IntMap as M
 import Data.Text (strip, unpack, splitOn)
 import Data.Text.IO (readFile)
 import Prelude hiding (readFile)
@@ -35,7 +35,7 @@ data Instruction = Add Arg Arg Arg
                  | Halt
                  deriving Show
 
-type Program = M.Map Address Int
+type Program = M.IntMap Int
 
 -- | Convert an Int array containing an intcode program into a Program
 toProgram :: [Int] -> Program

@@ -71,7 +71,7 @@ intcode inputs pos xs = do
 
   case decodeInstruction (drop pos (elems xs)) of
 
-    Nothing -> fail ("Could not decode opcode: " ++ show (xs ! pos))
+    Nothing -> error ("Could not decode opcode: " ++ show (xs ! pos))
 
     Just (Add arg1 arg2 dest) ->
       intcode inputs (pos+4) (xs // [(dest, getValue arg1 + getValue arg2)])

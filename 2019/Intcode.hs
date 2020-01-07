@@ -11,7 +11,7 @@ module Intcode (
   Program
 ) where
 
-import Data.Array
+import qualified Data.Map as M
 import Data.Text (strip, unpack, splitOn)
 import Data.Text.IO (readFile)
 import Prelude hiding (readFile)
@@ -23,23 +23,23 @@ data Arg = Value Int
          | Relative Address
          deriving Show
 
-data Instruction = Add Arg Arg Address
-                 | Multiply Arg Arg Address
-                 | Store Address
+data Instruction = Add Arg Arg Arg
+                 | Multiply Arg Arg Arg
+                 | Store Arg
                  | Output Arg
                  | JumpIfTrue Arg Arg
                  | JumpIfFalse Arg Arg
-                 | LessThan Arg Arg Address
-                 | Equal Arg Arg Address
+                 | LessThan Arg Arg Arg
+                 | Equal Arg Arg Arg
                  | SetRelBase Arg
                  | Halt
                  deriving Show
 
-type Program = Array Int Int
+type Program = M.Map Address Int
 
 -- | Convert an Int array containing an intcode program into a Program
 toProgram :: [Int] -> Program
-toProgram p = listArray (0, length p - 1) p
+toProgram p = M.fromAscList (zip [0..] p)
 
 -- | Read a file, return its contents as a Program
 progFromFile :: FilePath -> IO Program
@@ -53,14 +53,14 @@ decodeInstruction :: [Int] -> Maybe Instruction
 decodeInstruction [] = Nothing
 decodeInstruction ia@(i:_) =
   case opcode of
-    1 -> Just $ Add         (argN 1) (argN 2) (ia !! 3)
-    2 -> Just $ Multiply    (argN 1) (argN 2) (ia !! 3)
-    3 -> Just $ Store       (ia !! 1)
+    1 -> Just $ Add         (argN 1) (argN 2) (argN 3)
+    2 -> Just $ Multiply    (argN 1) (argN 2) (argN 3)
+    3 -> Just $ Store       (argN 1)
     4 -> Just $ Output      (argN 1)
     5 -> Just $ JumpIfTrue  (argN 1) (argN 2)
     6 -> Just $ JumpIfFalse (argN 1) (argN 2)
-    7 -> Just $ LessThan    (argN 1) (argN 2) (ia !! 3)
-    8 -> Just $ Equal       (argN 1) (argN 2) (ia !! 3)
+    7 -> Just $ LessThan    (argN 1) (argN 2) (argN 3)
+    8 -> Just $ Equal       (argN 1) (argN 2) (argN 3)
     9 -> Just $ SetRelBase  (argN 1)
     99 -> Just Halt
     _ -> Nothing
@@ -93,25 +93,31 @@ intcode :: [Int] -> VmState -> [Int]
 intcode _ VmState{program} | null program = fail "Unexpected end of program"
 
 intcode inputs vm@VmState{position=pos, program=xs, relBase} = do
-  let getValue (Value n) = n
-      getValue (Ptr p) = xs ! p
-      getValue (Relative r) = xs ! (r + relBase)
+  let memGet n = M.findWithDefault 0 n xs
 
-  case decodeInstruction (drop pos (elems xs)) of
+      memPut (Value _) _ = error "Cannot write to an immediate-mode value"
+      memPut (Ptr p) n = M.insert p n xs
+      memPut (Relative r) n = M.insert (r + relBase) n xs
 
-    Nothing -> error ("Could not decode opcode: " ++ show (xs ! pos))
+      getValue (Value n) = n
+      getValue (Ptr p) = memGet p
+      getValue (Relative r) = memGet (r + relBase)
+
+  case decodeInstruction (drop pos (M.elems xs)) of
+
+    Nothing -> error ("Could not decode opcode: " ++ show (memGet pos))
 
     Just (Add arg1 arg2 dest) ->
       intcode inputs vm { position = pos+4
-                        , program = xs // [(dest, getValue arg1 + getValue arg2)] }
+                        , program = memPut dest (getValue arg1 + getValue arg2) }
 
     Just (Multiply arg1 arg2 dest) ->
       intcode inputs vm { position = pos+4
-                        , program = xs // [(dest, getValue arg1 * getValue arg2)] }
+                        , program = memPut dest (getValue arg1 * getValue arg2) }
 
     Just (Store dest) ->
       intcode (drop 1 inputs) vm { position = pos+2
-                                 , program = xs // [(dest, head inputs)] }
+                                 , program = memPut dest (head inputs) }
 
     Just (Output arg) ->
       getValue arg : intcode inputs vm { position = pos+2 }
@@ -128,11 +134,11 @@ intcode inputs vm@VmState{position=pos, program=xs, relBase} = do
 
     Just (LessThan arg1 arg2 dest) -> do
       let v = if getValue arg1 < getValue arg2 then 1 else 0
-      intcode inputs vm { position = pos+4, program = xs // [(dest, v)] }
+      intcode inputs vm { position = pos+4, program = memPut dest v }
 
     Just (Equal arg1 arg2 dest) -> do
       let v = if getValue arg1 == getValue arg2 then 1 else 0
-      intcode inputs vm { position = pos+4, program = xs // [(dest, v)] }
+      intcode inputs vm { position = pos+4, program = memPut dest v }
 
     Just (SetRelBase arg) ->
       intcode inputs vm { position = pos+2, relBase = relBase + getValue arg }

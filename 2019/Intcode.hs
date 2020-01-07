@@ -1,9 +1,13 @@
+{-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE OverloadedStrings #-}
 
 module Intcode (
   intcode,
   toProgram,
   progFromFile,
+  newVm,
+  runIntcode,
+  VmState(..),
   Program
 ) where
 
@@ -14,7 +18,10 @@ import Prelude hiding (readFile)
 
 type Address = Int
 
-data Arg = Value Int | Ptr Address deriving Show
+data Arg = Value Int
+         | Ptr Address
+         | Relative Address
+         deriving Show
 
 data Instruction = Add Arg Arg Address
                  | Multiply Arg Arg Address
@@ -24,6 +31,7 @@ data Instruction = Add Arg Arg Address
                  | JumpIfFalse Arg Arg
                  | LessThan Arg Arg Address
                  | Equal Arg Arg Address
+                 | SetRelBase Arg
                  | Halt
                  deriving Show
 
@@ -53,6 +61,7 @@ decodeInstruction ia@(i:_) =
     6 -> Just $ JumpIfFalse (argN 1) (argN 2)
     7 -> Just $ LessThan    (argN 1) (argN 2) (ia !! 3)
     8 -> Just $ Equal       (argN 1) (argN 2) (ia !! 3)
+    9 -> Just $ SetRelBase  (argN 1)
     99 -> Just Halt
     _ -> Nothing
   where
@@ -60,47 +69,72 @@ decodeInstruction ia@(i:_) =
     argN n = case nthDigit n argModes of
                0 -> Ptr (ia !! n)
                1 -> Value (ia !! n)
+               2 -> Relative (ia !! n)
                x -> error ("Invalid instruction mode: " ++ show x)
 
--- | Run an intcode program
-intcode :: [Int] -> Int -> Program -> [Int]
-intcode _ _ p | null p = fail "Unexpected end of program"
-intcode inputs pos xs = do
+data VmState = VmState { position :: Address
+                       , relBase :: Address
+                       , program :: Program
+                       }
+
+newVm :: VmState
+newVm = VmState { position = 0
+                , relBase = 0
+                , program = undefined
+                }
+
+-- | Run an intcode program with input
+runIntcode :: [Int] -> [Int] -> [Int]
+runIntcode inputs prog = intcode inputs (newVm { program = toProgram prog })
+
+-- | Run an intcode VM
+intcode :: [Int] -> VmState -> [Int]
+
+intcode _ VmState{program} | null program = fail "Unexpected end of program"
+
+intcode inputs vm@VmState{position=pos, program=xs, relBase} = do
   let getValue (Value n) = n
       getValue (Ptr p) = xs ! p
+      getValue (Relative r) = xs ! (r + relBase)
 
   case decodeInstruction (drop pos (elems xs)) of
 
     Nothing -> error ("Could not decode opcode: " ++ show (xs ! pos))
 
     Just (Add arg1 arg2 dest) ->
-      intcode inputs (pos+4) (xs // [(dest, getValue arg1 + getValue arg2)])
+      intcode inputs vm { position = pos+4
+                        , program = xs // [(dest, getValue arg1 + getValue arg2)] }
 
     Just (Multiply arg1 arg2 dest) ->
-      intcode inputs (pos+4) (xs // [(dest, getValue arg1 * getValue arg2)])
+      intcode inputs vm { position = pos+4
+                        , program = xs // [(dest, getValue arg1 * getValue arg2)] }
 
     Just (Store dest) ->
-      intcode (drop 1 inputs) (pos+2) (xs // [(dest, head inputs)])
+      intcode (drop 1 inputs) vm { position = pos+2
+                                 , program = xs // [(dest, head inputs)] }
 
     Just (Output arg) ->
-      getValue arg : intcode inputs (pos+2) xs
+      getValue arg : intcode inputs vm { position = pos+2 }
 
     Just (JumpIfTrue arg target) ->
       if getValue arg == 0
-      then intcode inputs (pos+3) xs
-      else intcode inputs (getValue target) xs
+      then intcode inputs vm { position = pos+3 }
+      else intcode inputs vm { position = getValue target }
 
     Just (JumpIfFalse arg target) ->
       if getValue arg == 0
-      then intcode inputs (getValue target) xs
-      else intcode inputs (pos+3) xs
+      then intcode inputs vm { position = getValue target }
+      else intcode inputs vm { position = pos+3 }
 
     Just (LessThan arg1 arg2 dest) -> do
       let v = if getValue arg1 < getValue arg2 then 1 else 0
-      intcode inputs (pos+4) (xs // [(dest, v)])
+      intcode inputs vm { position = pos+4, program = xs // [(dest, v)] }
 
     Just (Equal arg1 arg2 dest) -> do
       let v = if getValue arg1 == getValue arg2 then 1 else 0
-      intcode inputs (pos+4) (xs // [(dest, v)])
+      intcode inputs vm { position = pos+4, program = xs // [(dest, v)] }
+
+    Just (SetRelBase arg) ->
+      intcode inputs vm { position = pos+2, relBase = relBase + getValue arg }
 
     Just Halt -> []

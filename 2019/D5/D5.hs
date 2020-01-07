@@ -9,7 +9,7 @@ main = do
   prog <- progFromFile "D5/input.txt"
 
   putStr "Part 1: "
-  print (intcode [1] 0 prog)
+  print (intcode [1] (newVm {program = prog}))
 
   putStr "Part 2: "
-  print (intcode [5] 0 prog)
+  print (intcode [5] (newVm {program = prog}))

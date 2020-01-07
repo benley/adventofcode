@@ -45,13 +45,14 @@ toProgram p = M.fromAscList (zip [0..] p)
 progFromFile :: FilePath -> IO Program
 progFromFile f = toProgram . map (read . unpack) . splitOn "," . strip <$> readFile f
 
--- | return the nth digit (from the right) of an integer, starting at 1
+-- | Return the nth digit (from the right) of an integer, starting at 1
 nthDigit :: Int -> Int -> Int
 nthDigit nth num = num `div` (10 ^ (nth-1)) `mod` 10
 
-decodeInstruction :: [Int] -> Maybe Instruction
-decodeInstruction [] = Nothing
-decodeInstruction ia@(i:_) =
+-- | Decode the instruction at current position in program
+decodeInstruction :: VmState -> Maybe Instruction
+decodeInstruction VmState{program} | null program = Nothing
+decodeInstruction VmState{program, position} =
   case opcode of
     1 -> Just $ Add         (argN 1) (argN 2) (argN 3)
     2 -> Just $ Multiply    (argN 1) (argN 2) (argN 3)
@@ -65,23 +66,22 @@ decodeInstruction ia@(i:_) =
     99 -> Just Halt
     _ -> Nothing
   where
-    (argModes, opcode) = divMod i 100
+    (argModes, opcode) = M.findWithDefault 0 position program `divMod` 100
     argN n = case nthDigit n argModes of
-               0 -> Ptr (ia !! n)
-               1 -> Value (ia !! n)
-               2 -> Relative (ia !! n)
+               0 -> Ptr v
+               1 -> Value v
+               2 -> Relative v
                x -> error ("Invalid instruction mode: " ++ show x)
+             where v = M.findWithDefault 0 (position+n) program
 
 data VmState = VmState { position :: Address
                        , relBase :: Address
-                       , program :: Program
-                       }
+                       , program :: Program }
 
 newVm :: VmState
 newVm = VmState { position = 0
                 , relBase = 0
-                , program = undefined
-                }
+                , program = undefined }
 
 -- | Run an intcode program with input
 runIntcode :: Program -> [Int] -> [Int]
@@ -103,7 +103,7 @@ intcode inputs vm@VmState{position=pos, program=xs, relBase} = do
       getValue (Ptr p) = memGet p
       getValue (Relative r) = memGet (r + relBase)
 
-  case decodeInstruction (drop pos (M.elems xs)) of
+  case decodeInstruction vm of
 
     Nothing -> error ("Could not decode opcode: " ++ show (memGet pos))
 

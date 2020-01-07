@@ -6,10 +6,10 @@ import Intcode
 
 main :: IO ()
 main = do
-  prog <- progFromFile "D5/input.txt"
+  run <- runIntcode <$> progFromFile "D5/input.txt"
 
   putStr "Part 1: "
-  print (intcode [1] (newVm {program = prog}))
+  print (run [1])
 
   putStr "Part 2: "
-  print (intcode [5] (newVm {program = prog}))
+  print (run [5])

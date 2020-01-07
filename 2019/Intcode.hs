@@ -84,8 +84,8 @@ newVm = VmState { position = 0
                 }
 
 -- | Run an intcode program with input
-runIntcode :: [Int] -> [Int] -> [Int]
-runIntcode inputs prog = intcode inputs (newVm { program = toProgram prog })
+runIntcode :: Program -> [Int] -> [Int]
+runIntcode prog inputs = intcode inputs (newVm { program = prog })
 
 -- | Run an intcode VM
 intcode :: [Int] -> VmState -> [Int]

@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module D9_2019 where
+module Main where
 
 import Intcode
 

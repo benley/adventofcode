@@ -5,13 +5,13 @@ let
   inherit (nixpkgs) pkgs;
 
   f = { mkDerivation, array, base, containers, fgl, split, stdenv
-      , text
+      , text, text-show
       }:
       mkDerivation {
         pname = "aoc2019";
         version = "0.1.0.0";
         src = ./.;
-        libraryHaskellDepends = [ array base containers fgl split text ];
+        libraryHaskellDepends = [ array base containers fgl split text text-show ];
         doHaddock = false;
         license = "unknown";
         hydraPlatforms = stdenv.lib.platforms.none;

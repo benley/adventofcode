@@ -2,14 +2,15 @@
 
 module Main where
 
-import qualified Data.Set as S
+import           Data.List (sortOn)
 import qualified Data.Map.Strict as M
-import Data.List (sortOn)
-import Data.Maybe (fromMaybe)
-import Data.Text (lines, unlines, strip, unpack, pack)
-import Data.Text.IO (readFile)
-import Prelude hiding (readFile, lines, unlines)
-import TextShow
+import           Data.Maybe (fromMaybe)
+import qualified Data.Set as S
+import           Data.Text (lines, unlines, strip, unpack, pack)
+import           Data.Text.Format
+import           Data.Text.IO (readFile)
+import           Prelude hiding (readFile, lines, unlines, print)
+import           TextShow
 
 type Coord = (Float, Float)
 
@@ -92,7 +93,10 @@ main = do
   Field cs <- loadFromFile "D10/input.txt"
 
   let m2v = S.map (\coord -> (coord, length $ findVisibleFromPosition (Field cs) coord)) cs
-  printT $ last (sortOn snd (S.toList m2v))
+
+  let ((bX, bY), num_visible) = last (sortOn snd (S.toList m2v))
+  print "(part 1) Best location for monitoring station: ({}, {})\n" (shortest bX, shortest bY)
+  print "         Visible from that location: {}\n" (Only num_visible)
 
 debugFile :: FilePath -> IO ()
 debugFile f = do

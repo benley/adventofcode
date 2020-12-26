@@ -1,0 +1,25 @@
+package(default_visibility = ["//visibility:public"])
+
+load(
+    "@rules_haskell//haskell:defs.bzl",
+    "haskell_toolchain_library",
+    "haskell_library",
+    "haskell_binary",
+    "haskell_repl",
+)
+
+# haskell_toolchain_library can access builtin GHC packages
+# and assign them a bazel target name, so that they
+# can be referenced as dependencies.
+haskell_toolchain_library(name = "base")
+haskell_toolchain_library(name = "containers")
+
+haskell_binary(
+    name = "D1",
+    srcs = ["D1.hs"],
+    deps = [
+      ":base",
+      ":containers",
+    ],
+    data = ["input1.txt"],
+)

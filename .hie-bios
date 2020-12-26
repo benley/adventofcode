@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+set -euo pipefail
+bazel build //:hie-bios --output_groups=hie_bios
+cat bazel-bin/hie-bios@hie-bios >"$HIE_BIOS_OUTPUT"
+# Make warnings non-fatal
+echo -Wwarn >>"$HIE_BIOS_OUTPUT"

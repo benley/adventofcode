@@ -1,1 +1,1 @@
-((haskell-mode . ((flycheck-checker . haskell-ghc))))
+;;((haskell-mode . ((flycheck-checker . haskell-ghc))))

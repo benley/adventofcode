@@ -4,7 +4,6 @@
 dist/
 .cabal-sandbox/
 dist-newstyle/
-input.txt
 TAGS
 bazel-*
 *~

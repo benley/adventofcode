@@ -6,9 +6,9 @@ load(
 haskell_binary(
     name = "D9",
     srcs = ["D9.hs"],
-    deps = [
-        "//builtin:base",
-        "//Aoc2019:Intcode",
-    ],
     data = ["input.txt"],
+    deps = [
+        "//Aoc2019:Intcode",
+        "//builtin:base",
+    ],
 )

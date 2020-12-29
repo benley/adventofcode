@@ -6,6 +6,6 @@ load(
 haskell_binary(
     name = "D4",
     srcs = ["D4.hs"],
-    deps = ["//builtin:base"],
     main_function = "D4_2019.main",
+    deps = ["//builtin:base"],
 )

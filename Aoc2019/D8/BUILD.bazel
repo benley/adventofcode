@@ -6,10 +6,10 @@ load(
 haskell_binary(
     name = "D8",
     srcs = ["D8.hs"],
+    data = ["input.txt"],
+    main_function = "D8_2019.main",
     deps = [
         "//builtin:base",
         "//builtin:text",
     ],
-    data = ["input.txt"],
-    main_function = "D8_2019.main",
 )

@@ -6,5 +6,7 @@ load(
 )
 
 haskell_toolchain_library(name = "base")
+
 haskell_toolchain_library(name = "containers")
+
 haskell_toolchain_library(name = "text")

@@ -3,15 +3,14 @@ package(default_visibility = ["//visibility:public"])
 load(
     "@rules_haskell//haskell:defs.bzl",
     "haskell_library",
-    "haskell_toolchain_library",
 )
-
-haskell_toolchain_library(name = "base")
-haskell_toolchain_library(name = "containers")
-haskell_toolchain_library(name = "text")
 
 haskell_library(
     name = "Intcode",
     srcs = ["Intcode.hs"],
-    deps = [":base", ":containers", ":text"],
+    deps = [
+        "//builtin:base",
+        "//builtin:containers",
+        "//builtin:text",
+    ],
 )

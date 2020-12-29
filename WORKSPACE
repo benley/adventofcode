@@ -2,14 +2,14 @@ workspace(name = "aoc_bazel")
 
 load(
     "@bazel_tools//tools/build_defs/repo:http.bzl",
-    "http_archive"
+    "http_archive",
 )
 
 http_archive(
     name = "rules_haskell",
+    sha256 = "b4e2c00da9bc6668fa0404275fecfdb31beb700abdba0e029e74cacc388d94d6",
     strip_prefix = "rules_haskell-0.13",
     urls = ["https://github.com/tweag/rules_haskell/archive/v0.13.tar.gz"],
-    sha256 = "b4e2c00da9bc6668fa0404275fecfdb31beb700abdba0e029e74cacc388d94d6",
 )
 
 load(
@@ -23,21 +23,20 @@ load(
     "@rules_haskell//haskell:toolchain.bzl",
     "rules_haskell_toolchains",
 )
-
 load(
     "@rules_haskell//haskell:cabal.bzl",
-    "stack_snapshot"
+    "stack_snapshot",
 )
 
 stack_snapshot(
     name = "stackage",
     extra_deps = {"zlib": ["@zlib.dev//:zlib"]},
     packages = [
-        "zlib",
-        "split",
         "fgl",
+        "split",
         "text-format",
         "text-show",
+        "zlib",
     ],
     snapshot = "nightly-2020-12-14",
     # This uses an unpinned version of stack_snapshot, meaning that
@@ -74,8 +73,8 @@ load(
 # For more information:
 # https://api.haskell.build/haskell/nixpkgs.html#haskell_register_ghc_nixpkgs
 haskell_register_ghc_nixpkgs(
-    repository = "@nixpkgs",
     attribute_path = "ghc",
+    repository = "@nixpkgs",
     version = "8.10.2",
 )
 

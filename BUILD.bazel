@@ -2,8 +2,8 @@ package(default_visibility = ["//visibility:public"])
 
 load(
     "@rules_haskell//haskell:defs.bzl",
-    "haskell_library",
     "haskell_binary",
+    "haskell_library",
     "haskell_repl",
 )
 
@@ -29,10 +29,10 @@ load(
 # )
 
 haskell_repl(
-  name = "hie-bios",
-  collect_data = False,
-  deps = [
-      "@stackage//:zlib",
-      "//Aoc2019:Intcode",
-  ],
+    name = "hie-bios",
+    collect_data = False,
+    deps = [
+        "//Aoc2019:Intcode",
+        "@stackage//:zlib",
+    ],
 )

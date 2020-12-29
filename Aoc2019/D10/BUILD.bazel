@@ -6,6 +6,7 @@ load(
 haskell_binary(
     name = "D10",
     srcs = ["D10.hs"],
+    data = ["input.txt"],
     deps = [
         "//builtin:base",
         "//builtin:containers",
@@ -13,5 +14,4 @@ haskell_binary(
         "@stackage//:text-format",
         "@stackage//:text-show",
     ],
-    data = ["input.txt"],
 )

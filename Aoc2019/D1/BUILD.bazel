@@ -6,6 +6,6 @@ load(
 haskell_binary(
     name = "D1",
     srcs = ["D1.hs"],
-    deps = ["//builtin:base"],
     data = ["input.txt"],
+    deps = ["//builtin:base"],
 )

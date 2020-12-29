@@ -8,9 +8,9 @@ load(
 haskell_binary(
     name = "D1",
     srcs = ["D1.hs"],
-    deps = [
-      "//builtin:base",
-      "//builtin:containers",
-    ],
     data = ["input1.txt"],
+    deps = [
+        "//builtin:base",
+        "//builtin:containers",
+    ],
 )

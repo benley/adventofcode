@@ -6,10 +6,10 @@ load(
 haskell_binary(
     name = "D5",
     srcs = ["D5.hs"],
-    deps = [
-        "//builtin:base",
-        "//Aoc2019:Intcode",
-    ],
     data = ["input.txt"],
     main_function = "D5_2019.main",
+    deps = [
+        "//Aoc2019:Intcode",
+        "//builtin:base",
+    ],
 )

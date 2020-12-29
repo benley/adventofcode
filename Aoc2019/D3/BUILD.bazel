@@ -6,10 +6,10 @@ load(
 haskell_binary(
     name = "D3",
     srcs = ["D3.hs"],
+    data = ["input.txt"],
     deps = [
         "//builtin:base",
         "//builtin:containers",
         "@stackage//:split",
     ],
-    data = ["input.txt"],
 )

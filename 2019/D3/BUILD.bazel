@@ -1,0 +1,15 @@
+load(
+    "@rules_haskell//haskell:defs.bzl",
+    "haskell_binary",
+)
+
+haskell_binary(
+    name = "D3",
+    srcs = ["D3.hs"],
+    deps = [
+        "//builtin:base",
+        "//builtin:containers",
+        "@stackage//:split",
+    ],
+    data = ["input.txt"],
+)

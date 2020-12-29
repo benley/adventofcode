@@ -2,16 +2,10 @@ package(default_visibility = ["//visibility:public"])
 
 load(
     "@rules_haskell//haskell:defs.bzl",
-    "haskell_toolchain_library",
     "haskell_library",
     "haskell_binary",
     "haskell_repl",
 )
-
-# haskell_toolchain_library can access builtin GHC packages
-# and assign them a bazel target name, so that they
-# can be referenced as dependencies.
-haskell_toolchain_library(name = "base")
 
 # You can add your own libraries with haskell_library.
 # haskell_library(
@@ -29,7 +23,7 @@ haskell_toolchain_library(name = "base")
 #     name = "example",
 #     srcs = [":Example.hs"],
 #     deps = [
-#       ":base",
+#       "//builtin:base",
 #       "@stackage//:zlib",
 #     ],
 # )
@@ -39,5 +33,6 @@ haskell_repl(
   collect_data = False,
   deps = [
       "@stackage//:zlib",
+      "//2019:Intcode",
   ],
 )

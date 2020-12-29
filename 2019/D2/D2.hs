@@ -1,12 +1,12 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module D2_2019 where
+module Main where
 
 import Data.Text as T (strip, pack, unpack, splitOn)
 
 main :: IO ()
 main = do
-  input' <- splitOn "," . strip . pack <$> readFile "D2/input.txt"
+  input' <- splitOn "," . strip . pack <$> readFile "2019/D2/input.txt"
   let input = map (read . unpack) input'
       part1 = head $ intcode 0 (update 2 2 $ update 1 12 input)
       part2 = snd $ head $ filter (\(o, _) -> o==19690720) [tryNV n v input | n <- [0..99], v <- [0..99]]

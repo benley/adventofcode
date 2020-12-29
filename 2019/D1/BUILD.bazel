@@ -1,0 +1,11 @@
+load(
+    "@rules_haskell//haskell:defs.bzl",
+    "haskell_binary",
+)
+
+haskell_binary(
+    name = "D1",
+    srcs = ["D1.hs"],
+    deps = ["//builtin:base"],
+    data = ["input.txt"],
+)

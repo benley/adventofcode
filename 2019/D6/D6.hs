@@ -15,7 +15,7 @@ import Data.Graph.Inductive.Query.SP (spLength)
 
 main :: IO ()
 main = do
-  input <- fmap (splitOn ")") . lines <$> readFile "D6/input.txt"
+  input <- fmap (splitOn ")") . lines <$> readFile "2019/D6/input.txt"
 
   let
     allLabels :: [Text]

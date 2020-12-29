@@ -26,6 +26,10 @@ common stuff
         default-language: Haskell2010
         other-modules: Intcode
 
+executable d8
+        import: stuff
+        main-is: D8/D8.hs
+
 executable d9
         import: stuff
         main-is: D9/D9.hs

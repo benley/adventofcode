@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module D3_2019 where
+module Main where
 
 import qualified Data.Set as S
 import Data.List (elemIndex)
@@ -9,7 +9,7 @@ import Data.Maybe (fromJust)
 
 main :: IO ()
 main = do
-  input <- readFile "D3/input.txt"
+  input <- readFile "2019/D3/input.txt"
   runWithText input
 
 runWithText :: String -> IO ()

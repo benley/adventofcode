@@ -1,0 +1,17 @@
+load(
+    "@rules_haskell//haskell:defs.bzl",
+    "haskell_binary",
+)
+
+haskell_binary(
+    name = "D6",
+    srcs = ["D6.hs"],
+    deps = [
+        "//builtin:base",
+        "//builtin:containers",
+        "//builtin:text",
+        "@stackage//:fgl",
+    ],
+    data = ["input.txt"],
+    main_function = "D6_2019.main",
+)

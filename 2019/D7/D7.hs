@@ -15,7 +15,7 @@ runAll p (phase:ps) signal = runAll p ps runStep
 
 main :: IO ()
 main = do
-  prog <- progFromFile "D7/input.txt"
+  prog <- progFromFile "2019/D7/input.txt"
   putStr "Part 1: "
   print $ maximum [runAll prog ps 0 | ps <- permutations [0..4]]
   putStr "Part 2: "

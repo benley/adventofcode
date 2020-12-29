@@ -32,7 +32,7 @@ load(
 stack_snapshot(
     name = "stackage",
     extra_deps = {"zlib": ["@zlib.dev//:zlib"]},
-    packages = ["zlib"],
+    packages = ["zlib", "split-0.2.3.4", "fgl"],
     snapshot = "nightly-2020-12-14",
     # This uses an unpinned version of stack_snapshot, meaning that
     # stack is invoked on every build.  To switch to pinned stackage

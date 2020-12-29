@@ -6,7 +6,7 @@ import Intcode
 
 main :: IO ()
 main = do
-  run <- runIntcode <$> progFromFile "D5/input.txt"
+  run <- runIntcode <$> progFromFile "2019/D5/input.txt"
 
   putStr "Part 1: "
   print (run [1])

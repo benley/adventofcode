@@ -1,0 +1,15 @@
+load(
+    "@rules_haskell//haskell:defs.bzl",
+    "haskell_binary",
+)
+
+haskell_binary(
+    name = "D7",
+    srcs = ["D7.hs"],
+    deps = [
+        "//builtin:base",
+        "//2019:Intcode",
+    ],
+    data = ["input.txt"],
+    main_function = "D7_2019.main",
+)

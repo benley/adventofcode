@@ -33,6 +33,6 @@ haskell_repl(
   collect_data = False,
   deps = [
       "@stackage//:zlib",
-      "//2019:Intcode",
+      "//Aoc2019:Intcode",
   ],
 )

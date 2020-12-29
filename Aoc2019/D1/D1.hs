@@ -2,7 +2,7 @@ module Main where
 
 main :: IO ()
 main = do
-  input' <- lines <$> readFile "2019/D1/input.txt"
+  input' <- lines <$> readFile "Aoc2019/D1/input.txt"
   print $ sum [simpleFuel (read x) | x <- input']
   print $ sum [fancyFuel (read x) | x <- input']
 

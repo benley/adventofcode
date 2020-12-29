@@ -2,11 +2,11 @@
 
 module Main where
 
-import Intcode
+import Aoc2019.Intcode
 
 main :: IO ()
 main = do
-  run <- runIntcode <$> progFromFile "2019/D9/input.txt"
+  run <- runIntcode <$> progFromFile "Aoc2019/D9/input.txt"
   putStr "Part 1: "
   print $ run [1]
   putStr "Part 2: "

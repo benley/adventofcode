@@ -4,12 +4,12 @@ load(
 )
 
 haskell_binary(
-    name = "D7",
-    srcs = ["D7.hs"],
+    name = "D5",
+    srcs = ["D5.hs"],
     deps = [
         "//builtin:base",
-        "//2019:Intcode",
+        "//Aoc2019:Intcode",
     ],
     data = ["input.txt"],
-    main_function = "D7_2019.main",
+    main_function = "D5_2019.main",
 )

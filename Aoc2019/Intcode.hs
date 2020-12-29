@@ -1,7 +1,7 @@
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE OverloadedStrings #-}
 
-module Intcode (
+module Aoc2019.Intcode (
   intcode,
   toProgram,
   progFromFile,

@@ -29,7 +29,7 @@ showC c = case c of
 
 main :: IO ()
 main = do
-  input <- unpack . strip <$> readFile "2019/D8/input.txt"
+  input <- unpack . strip <$> readFile "Aoc2019/D8/input.txt"
 
   let layerlines = splitN (6*25) input
       minZeros = minimumBy orderByZeros layerlines

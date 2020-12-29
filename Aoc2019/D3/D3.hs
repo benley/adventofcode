@@ -9,7 +9,7 @@ import Data.Maybe (fromJust)
 
 main :: IO ()
 main = do
-  input <- readFile "2019/D3/input.txt"
+  input <- readFile "Aoc2019/D3/input.txt"
   runWithText input
 
 runWithText :: String -> IO ()

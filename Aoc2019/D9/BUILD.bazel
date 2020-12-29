@@ -8,7 +8,7 @@ haskell_binary(
     srcs = ["D9.hs"],
     deps = [
         "//builtin:base",
-        "//2019:Intcode",
+        "//Aoc2019:Intcode",
     ],
     data = ["input.txt"],
 )

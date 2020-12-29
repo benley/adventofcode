@@ -90,7 +90,7 @@ loadFromFile fp = do
 
 main :: IO ()
 main = do
-  Field cs <- loadFromFile "2019/D10/input.txt"
+  Field cs <- loadFromFile "Aoc2019/D10/input.txt"
 
   let m2v = S.map (\coord -> (coord, length $ findVisibleFromPosition (Field cs) coord)) cs
 

@@ -32,13 +32,19 @@ load(
 stack_snapshot(
     name = "stackage",
     extra_deps = {"zlib": ["@zlib.dev//:zlib"]},
-    packages = ["zlib", "split-0.2.3.4", "fgl"],
+    packages = [
+        "zlib",
+        "split",
+        "fgl",
+        "text-format",
+        "text-show",
+    ],
     snapshot = "nightly-2020-12-14",
     # This uses an unpinned version of stack_snapshot, meaning that
     # stack is invoked on every build.  To switch to pinned stackage
     # dependencies, run `bazel run @stackage-unpinned//:pin` and
     # uncomment the following line.
-    # stack_snapshot_json = "//:stackage_snapshot.json",
+    stack_snapshot_json = "//:stackage_snapshot.json",
 )
 
 load(

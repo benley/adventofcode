@@ -1,0 +1,17 @@
+load(
+    "@rules_haskell//haskell:defs.bzl",
+    "haskell_binary",
+)
+
+haskell_binary(
+    name = "D10",
+    srcs = ["D10.hs"],
+    deps = [
+        "//builtin:base",
+        "//builtin:containers",
+        "//builtin:text",
+        "@stackage//:text-format",
+        "@stackage//:text-show",
+    ],
+    data = ["input.txt"],
+)

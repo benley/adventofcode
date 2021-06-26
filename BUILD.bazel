@@ -31,8 +31,12 @@ load(
 haskell_repl(
     name = "hie-bios",
     collect_data = False,
+    experimental_from_binary = [
+        "//builtin/...",
+    ],
     deps = [
         "//Aoc2019:Intcode",
+        "@stackage//:split",
         "@stackage//:zlib",
     ],
 )

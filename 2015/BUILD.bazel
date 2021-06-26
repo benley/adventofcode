@@ -1,0 +1,13 @@
+load(
+    "@rules_haskell//haskell:defs.bzl",
+    "haskell_binary",
+)
+
+haskell_binary(
+    name = "p2",
+    srcs = ["p2.hs"],
+    deps = [
+        "//builtin:base",
+        "@stackage//:split",
+    ],
+)

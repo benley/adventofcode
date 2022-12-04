@@ -1,6 +1,6 @@
 cabal-version:       3.0
 
-name:                aoc2019
+name:                Aoc2019
 version:             0.1.0.0
 -- synopsis:
 -- description:
@@ -34,6 +34,10 @@ executable d9
         import: stuff
         main-is: D9/D9.hs
 
-executable d10
+-- executable d10
+--         import: stuff
+--         main-is: D10/D10.hs
+
+executable d11
         import: stuff
-        main-is: D10/D10.hs
+        main-is: D11/D11.hs

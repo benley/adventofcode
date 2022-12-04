@@ -1,0 +1,30 @@
+cabal-version:       3.4
+name:                Aoc2016
+version:             0.1.0.0
+-- synopsis:
+-- description:
+-- license:             Apache-2.0
+-- license-file:        LICENSE
+author:              Benjamin Staffin
+maintainer:          benley@gmail.com
+-- copyright:
+-- category:
+build-type:          Simple
+-- extra-source-files:  ChangeLog.md
+
+common aoc2016
+    ghc-options: -Wall
+    default-language:    Haskell2010
+    build-depends: base
+                 , MissingH >= 1.4
+                 , regex-posix
+                 , pureMD5
+                 , bytestring
+                 , split
+                 , mtl
+                 , megaparsec
+                 -- , megaparsec >=5.3 && <6.0
+
+executable p9a
+    import:      aoc2016
+    main-is:     p9a.hs

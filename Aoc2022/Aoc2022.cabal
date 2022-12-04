@@ -1,0 +1,39 @@
+cabal-version:      3.4
+name:               Aoc2022
+version:            0.1.0.0
+-- synopsis:
+-- description:
+homepage:           https://github.com/benley/adventofcode
+license:            MIT
+license-file:       LICENSE
+author:             Benjamin Staffin
+maintainer:         benley@gmail.com
+-- copyright:
+build-type:         Simple
+extra-doc-files:    CHANGELOG.md
+-- extra-source-files:
+
+common stuff
+    default-language: GHC2021
+    default-extensions: OverloadedStrings
+    ghc-options: -Wall
+    build-depends:    base ^>=4.16.3.0
+                    , text >=2.0.1
+                    , containers
+                    , megaparsec ^>=9.3
+
+executable d1
+    import:           stuff
+    main-is:          D1/D1.hs
+
+executable d2
+    import: stuff
+    main-is: D2/D2.hs
+
+executable d2b
+    import: stuff
+    main-is: D2/D2b.hs
+
+executable d3
+    import: stuff
+    main-is: D3/D3.hs

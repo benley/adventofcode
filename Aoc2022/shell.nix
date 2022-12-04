@@ -2,9 +2,23 @@
 , compiler ? "ghc924"
 }:
 
+# { sources ? import nix/sources.nix,
+#   compiler ? "ghc924"
+# }:
+
 let
+  # pkgs = import sources.nixpkgs {};
+
   haskellPackages = pkgs.haskell.packages.${compiler};
-  ghc = pkgs.haskell.packages.${compiler}.ghcWithPackages (ps: with ps; []);
+
+  ghc = pkgs.haskell.packages.${compiler}.ghcWithPackages (ps: with ps; [
+    # aeson
+    # linear
+    # colour
+    # JuicyPixels
+    # lens
+    # yaml
+  ]);
 in
 pkgs.stdenv.mkDerivation {
   name = "aoc";

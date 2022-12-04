@@ -7,9 +7,9 @@ load(
 
 http_archive(
     name = "rules_haskell",
-    sha256 = "b4e2c00da9bc6668fa0404275fecfdb31beb700abdba0e029e74cacc388d94d6",
-    strip_prefix = "rules_haskell-0.13",
-    urls = ["https://github.com/tweag/rules_haskell/archive/v0.13.tar.gz"],
+    sha256 = "aba3c16015a2363b16e2f867bdc5c792fa71c68cb97d8fe95fddc41e409d6ba8",
+    strip_prefix = "rules_haskell-0.15",
+    urls = ["https://github.com/tweag/rules_haskell/archive/v0.15.tar.gz"],
 )
 
 load(
@@ -75,7 +75,7 @@ load(
 haskell_register_ghc_nixpkgs(
     attribute_path = "ghc",
     repository = "@nixpkgs",
-    version = "8.10.2",
+    version = "9.0.2",
 )
 
 # For zlib.BUILD.bazel

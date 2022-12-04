@@ -1,3 +1,6 @@
+# cradle:
+#   bios:
+#     program: ".hie-bios"
+
 cradle:
-  bios:
-    program: ".hie-bios"
+  cabal:

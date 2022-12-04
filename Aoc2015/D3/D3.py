@@ -64,7 +64,7 @@ def part2(data):
 
 def main():
     """Main"""
-    data = open("p3_input.txt").read().strip()
+    data = open("D3/input.txt").read().strip()
     part1(data)
     part2(data)
 

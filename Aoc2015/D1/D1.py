@@ -16,10 +16,10 @@ def main():
         elif char == ")":
             floor -= 1
         if floor < 0 and not posdone:
-            print "Went negative at: %d" % pos
+            print("Went negative at: %d" % pos)
             posdone = True
         pos += 1
-    print "Final floor: %d" % floor
+    print("Final floor: %d" % floor)
 
 
 if __name__ == '__main__':

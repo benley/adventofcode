@@ -1,16 +1,9 @@
 cabal-version:       3.4
 name:                Aoc2016
 version:             0.1.0.0
--- synopsis:
--- description:
--- license:             Apache-2.0
--- license-file:        LICENSE
 author:              Benjamin Staffin
 maintainer:          benley@gmail.com
--- copyright:
--- category:
 build-type:          Simple
--- extra-source-files:  ChangeLog.md
 
 common aoc2016
     ghc-options: -Wall
@@ -24,6 +17,18 @@ common aoc2016
                  , mtl
                  , megaparsec
                  -- , megaparsec >=5.3 && <6.0
+
+executable d1a
+    import:      aoc2016
+    main-is:     D1/D1a.hs
+
+executable d1b
+    import:      aoc2016
+    main-is:     D1/D1b.hs
+
+executable d2
+    import:      aoc2016
+    main-is:     D2/D2.hs
 
 executable p9a
     import:      aoc2016

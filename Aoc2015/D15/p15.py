@@ -33,7 +33,7 @@ def main():
         score = reduce(int.__mul__, subscores)
         if score > max:
             maxscore = score
-    print maxscore
+    print(maxscore)
 
 
 if __name__ == '__main__':

@@ -1,4 +1,3 @@
-{-# OPTIONS_GHC -Wall #-}
 module Main where
 
 import Text.Printf
@@ -22,6 +21,6 @@ firstNegative pos flr (p:parens)
 
 main :: IO ()
 main = do
-    input <- getContents
+    input <- readFile "D1/input.txt"
     printf "Went negative at: %d\n" $ firstNegative 0 0 input
     printf "Final floor: %d\n" $ santaFloor 0 input

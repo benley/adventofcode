@@ -1,6 +1,4 @@
-{-# OPTIONS_GHC -Wall #-}
-
-module P5 where
+module Main where
 
 import Data.List
 
@@ -44,21 +42,21 @@ isNice1 str = all (==True) [countVowels str >= 3,
   them, like xyx, abcdefeghi (efe), or even aaa.
 -}
 
-hasdoublepair :: Strool
+hasdoublepair :: String -> Bool
 hasdoublepair (a:b:xs) = [a,b] `isInfixOf` xs || hasdoublepair (b:xs)
 hasdoublepair _ = False
 
-type Strool = String -> Bool
-
-aba :: Strool
+aba :: String -> Bool
 aba (a:b:c:xs) = a == c || aba (b:c:xs)
 aba _ = False
 
-isNice2 :: Strool
+isNice2 :: String -> Bool
 isNice2 str = hasdoublepair str && aba str
 
 main :: IO ()
 main = do
-    strs <- readFile "p5_input.txt"
+    strs <- readFile "D5/input.txt"
+    putStr "Part 1: "
     print $ length [x | x <- lines strs, isNice1 x]
+    putStr "Part 2: "
     print $ length [x | x <- lines strs, isNice2 x]

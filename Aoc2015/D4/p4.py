@@ -12,7 +12,7 @@ def main():
     while True:
         dhash = hashlib.md5(data + str(num)).hexdigest()
         if dhash.startswith("000000"):
-            print num
+            print(num)
             return
         num += 1
 

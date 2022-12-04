@@ -1,7 +1,6 @@
-module P2b where
+module Main where
 
 import Data.List (foldl')
-import Data.String.Utils (strip)
 
 type Pos = (Int, Int)
 type Keypad = (Pos -> Char)
@@ -30,9 +29,9 @@ runpad :: Keypad -> Pos -> [String] -> String
 runpad pad pos cmdlines = map pad (runpad' pad pos cmdlines) where
 
     runpad' _ _ [] = []
-    runpad' pad pos (move_seq:moves) =
-        newpos : runpad' pad newpos moves
-        where newpos = foldl' (move pad) pos move_seq
+    runpad' pad' pos' (move_seq:moves) =
+        newpos : runpad' pad' newpos moves
+        where newpos = foldl' (move pad') pos' move_seq
 
     move :: Keypad -> Pos -> Char -> Pos
     move pinpad (x, y) dir =
@@ -40,8 +39,10 @@ runpad pad pos cmdlines = map pad (runpad' pad pos cmdlines) where
         where newpos = case dir of
                          'U' -> (x, y - 1); 'L' -> (x - 1, y)
                          'D' -> (x, y + 1); 'R' -> (x + 1, y)
+                         _   -> error "invalid direction"
 
+main :: IO ()
 main = do
-    cmds <- lines <$> readFile "p2-input.txt"
+    cmds <- lines <$> readFile "D2/input.txt"
     putStrLn $ "Part 1: " ++ runpad padA (2,2) cmds
     putStrLn $ "Part 2: " ++ runpad padB (3,1) cmds

@@ -10,7 +10,7 @@ def part1(data):
         s3 = y * z
         slack = min([s1, s2, s3])
         acc += slack + (2 * (s1 + s2 + s3))
-    print "part 1: %s" % acc
+    print("part 1: %s" % acc)
 
 
 def part2(data):
@@ -23,7 +23,7 @@ def part2(data):
         perim = min([p1, p2, p3])
         vol = x * y * z
         acc += perim + vol
-    print "part 2: %s" % acc
+    print("part 2: %s" % acc)
 
 
 def main():

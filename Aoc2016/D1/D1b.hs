@@ -1,7 +1,7 @@
 -- http://adventofcode.com/2016/day/1
 {-# LANGUAGE TupleSections #-}
 
-module P1b where
+module Main where
 
 import Data.String.Utils (split, strip)
 
@@ -41,7 +41,7 @@ expand (c1 : c2 : cs) = expand_ c1 c2 ++ (tail . expand) (c2 : cs)
 
 main :: IO ()
 main = do
-    cmds <- (map strip . split "," . strip) <$> readFile "p1-input.txt"
+    cmds <- map strip . split "," . strip <$> readFile "D1/input.txt"
     let seen = runbunny [(0, 0)] North cmds
     putStrLn ("Path: " ++ show seen)
     putStrLn ("Length: " ++ show (length seen))

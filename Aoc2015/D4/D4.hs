@@ -1,5 +1,3 @@
-{-# OPTIONS_GHC -Wall #-}
-
 module Main where
 
 import Crypto.Hash
@@ -16,5 +14,7 @@ checknum num seed targetstr =
 
 main :: IO ()
 main = do
+    putStr "Part 1: "
     print $ checknum 0 "ckczppom" "00000"
+    putStr "Part 2: "
     print $ checknum 0 "ckczppom" "000000"

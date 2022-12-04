@@ -30,7 +30,7 @@ def part1(idata):
     for line in idata:
         if has3vowels(line) and doubleletter(line) and not badstrings(line):
             nice += 1
-    print "Part 1:", nice
+    print("Part 1:", nice)
 
 
 def noverlapxx(line):
@@ -54,7 +54,7 @@ def part2(idata):
     for line in idata:
         if noverlapxx(line) and a_b_a(line):
             nice += 1
-    print "Part 2:", nice
+    print("Part 2:", nice)
 
 
 def main():

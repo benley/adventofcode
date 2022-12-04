@@ -13,13 +13,9 @@ def parse(line):
             (int(match[3]), int(match[4])))
 
 
-def ceil(a, b):
-    return a if a > b else b
-
-
 def main():
     """Main"""
-    row = [0 for _ in range(0, 1000)]
+    row = [False for _ in range(0, 1000)]
     grid = [row[:] for _ in row]
 
     with open('p6-input.txt') as fh:
@@ -27,11 +23,11 @@ def main():
 
     def docmd(cmd, x, y):
         if cmd == 'turn on':
-            grid[x][y] += 1
+            grid[x][y] = True
         elif cmd == 'turn off':
-            grid[x][y] = ceil(0, grid[x][y] - 1)
+            grid[x][y] = False
         elif cmd == 'toggle':
-            grid[x][y] += 2
+            grid[x][y] = not grid[x][y]
 
     for line in data:
         cmd, (xA, yA), (xZ, yZ) = parse(line)
@@ -39,7 +35,7 @@ def main():
             for y in range(yA, yZ + 1):
                 docmd(cmd, x, y)
 
-    print sum(sum(r) for r in grid)
+    print(sum(r.count(True) for r in grid))
 
 
 if __name__ == '__main__':

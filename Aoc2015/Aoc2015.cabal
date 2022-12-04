@@ -1,0 +1,41 @@
+cabal-version:      3.4
+name:               Aoc2015
+version:            0.1.0.0
+-- synopsis:
+-- description:
+homepage:           https://github.com/benley/adventofcode
+license:            MIT
+license-file:       LICENSE
+author:             Benjamin Staffin
+maintainer:         benley@gmail.com
+build-type:         Simple
+
+common stuff
+    default-language: GHC2021
+    ghc-options: -Wall
+    build-depends:    base ^>=4.16.3.0
+                    , text >=2.0.1
+                    , containers
+                    , split >=0.2.3
+                    , cryptonite
+                    , bytestring
+
+executable d1
+    import:           stuff
+    main-is:          D1/D1.hs
+
+executable d2
+    import:           stuff
+    main-is:          D2/D2.hs
+
+executable d3
+    import:           stuff
+    main-is:          D3/D3.hs
+
+executable d4
+    import:           stuff
+    main-is:          D4/D4.hs
+
+executable d5
+    import:           stuff
+    main-is:          D5/D5.hs

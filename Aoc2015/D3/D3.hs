@@ -1,4 +1,3 @@
-{-# OPTIONS_GHC -Wall #-}
 module Main where
 
 import Data.Map.Lazy
@@ -7,7 +6,6 @@ import Text.Printf
 
 runSanta :: String -> (Int, Int) -> Map (Int, Int) Int -> Map (Int, Int) Int
 runSanta [] _ houses = houses
-
 runSanta (v:v_rest) (x, y) houses =
     runSanta v_rest newPos (insert newPos 1 houses)
     where newPos = case v of '<' -> (x-1, y)
@@ -18,9 +16,6 @@ runSanta (v:v_rest) (x, y) houses =
 
 oneSanta :: String -> Map (Int, Int) Int
 oneSanta input = runSanta input (0, 0) (fromList [((0,0), 1)])
-
-strip :: String -> IO String
-strip = return . unpack . Data.Text.strip . pack
 
 deinterlace :: String -> (String, String)
 deinterlace str = deint str [] [] where
@@ -36,6 +31,6 @@ alternateSantas input = size $ union (oneSanta s1houses) (oneSanta s2houses) whe
 
 main :: IO ()
 main = do
-    input <- getContents >>= Main.strip
+    input <- unpack . strip . pack <$> readFile "D3/input.txt"
     printf "Part 1: %d\n" $ size $ oneSanta input
     printf "Part 2: %d\n" $ alternateSantas input

@@ -1,4 +1,4 @@
-module P1a where
+module Main where
 
 import Data.String.Utils (split, strip)
 
@@ -26,9 +26,10 @@ runbunny (x, y) facing ((dir:distance):xs) =
                           West -> South
                           South -> East
                           East -> North
+                 _   -> error "invalid"
 
 main :: IO ()
 main = do
-    input <- map strip . split "," . strip <$> readFile "p1-input.txt"
+    input <- map strip . split "," . strip <$> readFile "D1/input.txt"
     let (x, y) = runbunny (0,0) North input
-    print (abs x + abs y)
+    print ((abs x + abs y) :: Integer)

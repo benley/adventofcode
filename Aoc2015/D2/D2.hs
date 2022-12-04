@@ -1,4 +1,3 @@
-{-# OPTIONS_GHC -Wall #-}
 module Main where
 
 import Data.List.Split
@@ -30,6 +29,6 @@ strToInt x = read x :: Int
 
 main :: IO ()
 main = do
-    input <- getContents
+    input <- readFile "D2/input.txt"
     printf "Part 1: %d\n" $ part1 (splitOn "\n" input)
     printf "Part 2: %d\n" $ part2 (splitOn "\n" input)

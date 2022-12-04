@@ -37,3 +37,7 @@ executable d2b
 executable d3
     import: stuff
     main-is: D3/D3.hs
+
+executable d4
+    import: stuff
+    main-is: D4/D4.hs

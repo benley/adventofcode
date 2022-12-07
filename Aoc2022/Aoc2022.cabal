@@ -45,3 +45,7 @@ executable d4
 executable d5
     import: stuff
     main-is: D5/D5.hs
+
+executable d6
+    import: stuff
+    main-is: D6/D6.hs

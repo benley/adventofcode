@@ -17,10 +17,11 @@ common stuff
     default-language: GHC2021
     default-extensions: OverloadedStrings
     ghc-options: -Wall
-    build-depends:    base ^>=4.16.3.0
+    build-depends:    base ^>=4.16
                     , text >=2.0.1
                     , containers
                     , megaparsec ^>=9.3
+                    , fgl >=5.8
 
 executable d1
     import:           stuff
@@ -49,3 +50,7 @@ executable d5
 executable d6
     import: stuff
     main-is: D6/D6.hs
+
+executable d7
+    import: stuff
+    main-is: D7/D7.hs

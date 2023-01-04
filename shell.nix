@@ -9,10 +9,12 @@ in
 pkgs.stdenv.mkDerivation {
   name = "aoc";
   buildInputs = [
+    pkgs.python-language-server
     ghc
     pkgs.zlib
     haskellPackages.hoogle
-    (pkgs.haskell-language-server.override { supportedGhcVersions = ["924"]; })
+    haskellPackages.haskell-language-server
+    # (pkgs.haskell-language-server.override { supportedGhcVersions = ["92"]; })
   ];
   shellHook = "eval $(egrep ^export ${ghc}/bin/ghc)";
 }

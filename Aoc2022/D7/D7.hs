@@ -51,10 +51,7 @@ parseLsDir :: Parser DirectoryEntry
 parseLsDir = string "dir " >> manyTill asciiChar newline <&> DirE
 
 parseLsFile :: Parser DirectoryEntry
-parseLsFile = do
-  fileSize <- decimal <* space
-  name <- manyTill asciiChar newline
-  return (FileE name fileSize)
+parseLsFile = flip FileE <$> decimal <* space <*> manyTill asciiChar newline
 
 type DState = (Node, Tree)
 

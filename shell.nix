@@ -1,4 +1,5 @@
-{ pkgs ? import <nixpkgs> {}
+{ sources ? import ./nix/sources.nix
+, pkgs ? import sources.nixpkgs {}
 , compiler ? "ghc924"
 }:
 
@@ -9,12 +10,11 @@ in
 pkgs.stdenv.mkDerivation {
   name = "aoc";
   buildInputs = [
-    pkgs.python-language-server
     ghc
     pkgs.zlib
     haskellPackages.hoogle
     haskellPackages.haskell-language-server
-    # (pkgs.haskell-language-server.override { supportedGhcVersions = ["92"]; })
+    pkgs.niv
   ];
   shellHook = "eval $(egrep ^export ${ghc}/bin/ghc)";
 }

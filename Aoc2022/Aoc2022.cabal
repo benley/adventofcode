@@ -22,6 +22,7 @@ common stuff
                     , containers
                     , megaparsec ^>=9.3
                     , fgl >=5.8
+                    , split
 
 executable d1
     import:           stuff
@@ -54,3 +55,7 @@ executable d6
 executable d7
     import: stuff
     main-is: D7/D7.hs
+
+executable d8
+    import: stuff
+    main-is: D8/D8.hs

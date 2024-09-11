@@ -1,10 +1,11 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Main where
+module D1.D1 where
 
 import Data.Char (isDigit)
 import Data.Text (filter, head, last, lines, Text, isPrefixOf, drop, take)
 import Data.Text.IO (readFile)
+import Paths_Aoc2023 (getDataFileName)
 import Prelude hiding (filter, head, last, lines, readFile, drop, take)
 
 filterDigits :: Text -> Int
@@ -12,9 +13,9 @@ filterDigits t =
   read [head ds, last ds]
   where ds = filter isDigit t
 
-main :: IO ()
-main = do
-  input <- lines <$> readFile "src/D1/input.txt"
+runD1 :: IO ()
+runD1 = do
+  input <- lines <$> (readFile =<< getDataFileName "day01-input.txt")
   print $ part1 input
   print $ part2 input
 

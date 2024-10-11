@@ -2,7 +2,7 @@
 
 module Main where
 
-import D1.D1 (runD1)
+import D1 (runD1)
 import D2 (runD2)
 import System.Environment (getArgs)
 

@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module D1.D1 where
+module D1 where
 
 import Data.Char (isDigit)
 import Data.Text (filter, head, last, lines, Text, isPrefixOf, drop, take)

@@ -18,7 +18,7 @@ data-dir: data
 common deps
     default-language: GHC2021
     default-extensions: OverloadedStrings
-    ghc-options: -Wall
+    ghc-options: -Wall -Wmissing-home-modules
     build-depends:    base ^>= 4.18.2
                     , containers
                     , megaparsec
@@ -34,7 +34,7 @@ library
     import: deps
     hs-source-dirs: src
     exposed-modules:
-        D1.D1
+        D1
         D2
     other-modules:
         Paths_Aoc2023

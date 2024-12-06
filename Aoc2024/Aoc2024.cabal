@@ -35,6 +35,7 @@ library
     hs-source-dirs: src
     exposed-modules:
         D1
+        D2
     other-modules:
         Paths_Aoc2024
     autogen-modules:

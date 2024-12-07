@@ -23,6 +23,8 @@ common deps
         base ^>= 4.18.2
       , text ^>= 2.0.2
       , containers
+      , text-icu
+      , text-regex-replace
 
 executable app
     import: deps
@@ -36,6 +38,7 @@ library
     exposed-modules:
         D1
         D2
+        D3
     other-modules:
         Paths_Aoc2024
     autogen-modules:

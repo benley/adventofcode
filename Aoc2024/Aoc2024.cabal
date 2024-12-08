@@ -39,6 +39,7 @@ library
         D1
         D2
         D3
+        D4
     other-modules:
         Paths_Aoc2024
     autogen-modules:
